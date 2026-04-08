@@ -1579,7 +1579,12 @@
               document.getElementById('sel-detail-created-by').textContent = rowData.createdBy || rowData['Created By'] || '-';
 
               const folderValue = rowData.folderLink || rowData.Folder_Path || '-';
-              document.getElementById('sel-detail-folder').textContent = folderValue;
+              const folderEl = document.getElementById('sel-detail-folder');
+              if (folderValue !== '-' && String(folderValue).startsWith('http')) {
+                folderEl.innerHTML = `<a href="${folderValue}" target="_blank" style="color: var(--primary-color); text-decoration: underline;">Open Folder</a>`;
+              } else {
+                folderEl.textContent = folderValue;
+              }
 
               document.getElementById('config-req-id').textContent = rowData.id || id;
               const plNameElem = document.getElementById('config-pl-name');
