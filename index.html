@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Techpack Tasks</title>
+  <title>Techpack Upload & Config</title>
 </head>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -1614,19 +1614,17 @@
 
               // Map to present exactly what the user requested, in a beautiful layout
               const displayFields = [
-                { label: 'Request ID', value: rowData.id || rowData.C_Number },
-                { label: 'Title', value: rowData.Title || rowData.Style || rowData.style },
+                { label: 'Request ID', value: rowData.id },
                 { label: 'Customer', value: rowData.Customer || rowData.customer },
-                { label: 'Cus Dept', value: rowData.Cus_Dept || rowData.cusDept || rowData['Customer Department'] },
+                { label: 'Cus Dept', value: rowData.Cus_Dept || rowData.cusDept },
                 { label: 'TKL Season', value: rowData.TKL_Season || rowData.tklSeason },
                 { label: 'Main Fabric', value: rowData.Main_Fabric || rowData.mainFabric },
                 { label: 'Fabric Header', value: rowData.Fabric_Header || rowData.fabricHeader },
                 { label: 'PL Name', value: rowData.PL_Name || rowData.assignee },
                 { label: 'Status', value: rowData.Status || rowData.status },
-                { label: 'Created', value: rowData.Created || rowData.createdDate || rowData.Requested_Date },
+                { label: 'Created', value: rowData.Created || rowData.createdDate },
                 { label: 'Created By', value: rowData['Created By'] || rowData.createdBy },
-                { label: 'Remarks', value: rowData.remarks || rowData.Remarks || '-' },
-                { label: 'Folder Path', value: rowData.Folder_Path || rowData.folderLink || '-' }
+                { label: 'Folder Path', value: rowData.Folder_Path || rowData.folderLink }
               ];
 
               detailsContent.innerHTML = displayFields.map(field => {
@@ -2026,25 +2024,59 @@
                 title.textContent = `Requests on ${monthNames[month]} ${i}, ${year}`;
 
                 // Build a clean, styled list of Request IDs with a Details Button!
-                content.innerHTML = dailyReqs.map(r => {
-                  const safeId = r.id || r.C_Number || `REQ-${requestsRows.indexOf(r) + 1}`;
-                  return `
+                content.innerHTML = dailyReqs.map(r => `
                     <div style="padding: 10px 8px; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
                        <div style="display:flex; flex-direction: column;">
-                           <span style="font-weight: 500; color: var(--text-main);">${safeId}</span>
-                           <span style="font-size: 12px; color: var(--text-muted);">${r.customer || r.Customer || 'No Customer'}</span>
+                           <span style="font-weight: 500; color: var(--text-main);">${r.id || 'Unknown ID'}</span>
+                           <span style="font-size: 12px; color: var(--text-muted);">${r.customer || 'No Customer'}</span>
                        </div>
-                       <button class="btn-outline calendar-details-btn" data-id="${safeId}" style="padding: 6px 10px; font-size: 12px;">View Details</button>
+                       <button class="btn-outline calendar-details-btn" data-id="${r.id}" style="padding: 6px 10px; font-size: 12px;">View Details</button>
                     </div>
-                  `;
-                }).join('');
+                 `).join('');
 
                 // Bind those new buttons to the Details pane!
                 const calDetailsBtns = content.querySelectorAll('.calendar-details-btn');
                 calDetailsBtns.forEach(btn => {
                   btn.addEventListener('click', (e) => {
                     const id = e.currentTarget.getAttribute('data-id');
-                    openDetails(id);
+                    const rowData = requestsRows.find(r => r.id === id);
+
+                    if (rowData) {
+                      const detailsContent = document.getElementById('details-content');
+
+                      // Exactly identical logic to your Completed Table Details!
+                      const displayFields = [
+                        { label: 'Request ID', value: rowData.id },
+                        { label: 'Customer', value: rowData.Customer || rowData.customer },
+                        { label: 'Cus Dept', value: rowData.Cus_Dept || rowData.cusDept },
+                        { label: 'TKL Season', value: rowData.TKL_Season || rowData.tklSeason },
+                        { label: 'Main Fabric', value: rowData.Main_Fabric || rowData.mainFabric },
+                        { label: 'Fabric Header', value: rowData.Fabric_Header || rowData.fabricHeader },
+                        { label: 'PL Name', value: rowData.PL_Name || rowData.assignee },
+                        { label: 'Status', value: rowData.Status || rowData.status },
+                        { label: 'Created', value: rowData.Created || rowData.createdDate },
+                        { label: 'Created By', value: rowData['Created By'] || rowData.createdBy },
+                        { label: 'Folder Path', value: rowData.Folder_Path || rowData.folderLink }
+                      ];
+
+                      detailsContent.innerHTML = displayFields.map(field => {
+                        let displayValue = field.value || '-';
+                        if (field.label === 'Folder Path' && displayValue !== '-') {
+                          displayValue = `<a href="${displayValue}" target="_blank" style="color: var(--primary-color); word-break: break-all; text-decoration: underline;">Open Folder</a>`;
+                        } else if (field.label === 'Status') {
+                          displayValue = `<span class="badge" style="background-color: var(--status-progress-bg); color: var(--status-progress-text); padding: 2px 8px; border-radius: 12px; font-weight: 600; font-size: 12px;">${displayValue}</span>`;
+                        }
+
+                        return `
+                              <div style="display:flex; justify-content:space-between; border-bottom:1px solid #f3f4f6; padding: 10px 4px; align-items: flex-start; gap: 16px;">
+                                <strong style="color: var(--text-muted); font-weight: 500; min-width: 120px;">${field.label}</strong>
+                                <span style="color: var(--text-main); font-weight: 500; text-align: right; word-break: break-word;">${displayValue}</span>
+                              </div>
+                            `;
+                      }).join('');
+
+                      document.getElementById('details-modal').style.display = 'flex';
+                    }
                   });
                 });
 
@@ -2067,40 +2099,23 @@
       }
 
       function openDetails(id) {
-        const rowData = requestsRows.find((r, i) => String(r.id || r.C_Number || `REQ-${i + 1}`) === String(id) || String(r.id) === String(id) || String(r.C_Number) === String(id));
+        const rowData = requestsRows.find((r, i) => (r.id || `REQ-${i + 1}`) === id);
         if (!rowData) return;
         const detailsContent = document.getElementById('details-content');
         const displayFields = [
-          { label: 'Request ID', value: rowData.id || rowData.C_Number },
-          { label: 'Title', value: rowData.Title || rowData.Style || rowData.style },
+          { label: 'Request ID', value: rowData.id },
           { label: 'Customer', value: rowData.Customer || rowData.customer },
-          { label: 'Cus Dept', value: rowData.Cus_Dept || rowData.cusDept || rowData['Customer Department'] },
-          { label: 'TKL Season', value: rowData.TKL_Season || rowData.tklSeason },
-          { label: 'Main Fabric', value: rowData.Main_Fabric || rowData.mainFabric },
-          { label: 'Fabric Header', value: rowData.Fabric_Header || rowData.fabricHeader },
+          { label: 'Style', value: rowData.Style || rowData.style },
           { label: 'PL Name', value: rowData.PL_Name || rowData.assignee },
-          { label: 'Status', value: rowData.Status || rowData.status },
-          { label: 'Created', value: rowData.Created || rowData.createdDate || rowData.Requested_Date },
-          { label: 'Created By', value: rowData['Created By'] || rowData.createdBy },
-          { label: 'Remarks', value: rowData.remarks || rowData.Remarks || '-' },
-          { label: 'Folder Path', value: rowData.Folder_Path || rowData.folderLink || '-' }
+          { label: 'Remarks', value: rowData.remarks || rowData.Remarks || '' },
+          { label: 'Created Date', value: formatToDDMMYYYY(rowData.createdDate || rowData.Created) },
+          { label: 'Folder Path', value: rowData.Folder_Path || rowData.folderLink || '-' },
+          { label: 'Status', value: rowData.Status || rowData.status }
         ];
         detailsContent.innerHTML = displayFields.map(field => {
           let displayValue = field.value || '-';
-          if (field.label === 'Created' && displayValue !== '-') {
-            function localFormatToDDMMYYYY(dateStr) {
-              if (!dateStr || dateStr === '-') return '-';
-              if (typeof dateStr === 'string' && dateStr.includes('/')) return dateStr.split(' ')[0];
-              const d = new Date(dateStr);
-              if (isNaN(d)) return dateStr;
-              return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
-            }
-            displayValue = localFormatToDDMMYYYY(displayValue);
-          } else if (field.label === 'Status') {
-            displayValue = `<span class="badge" style="background-color: var(--status-progress-bg); color: var(--status-progress-text); padding: 4px 8px; border-radius: 12px; font-weight: 600; font-size: 11px;">${displayValue}</span>`;
-          } else if (field.label === 'Folder Path' && displayValue !== '-' && String(displayValue).startsWith('http')) {
-            displayValue = `<a href="${displayValue}" target="_blank" style="color: var(--primary-color); text-decoration: underline;">Open Folder</a>`;
-          }
+          if (field.label === 'Status') displayValue = `<span class="badge" style="background-color: var(--status-progress-bg); color: var(--status-progress-text); padding: 4px 8px; border-radius: 12px; font-weight: 600; font-size: 11px;">${displayValue}</span>`;
+          else if (field.label === 'Folder Path' && field.value !== '-' && field.value.startsWith('http')) displayValue = `<a href="${field.value}" target="_blank" style="color: var(--primary-color); text-decoration: underline;">Open Folder</a>`;
           return `<div style="display:flex; justify-content:space-between; border-bottom:1px solid #f3f4f6; padding: 10px 4px; align-items: flex-start; gap: 16px;"><strong style="color: var(--text-muted); font-weight: 500; min-width: 120px;">${field.label}</strong><span style="color: var(--text-main); font-weight: 500; text-align: right; word-break: break-word;">${displayValue}</span></div>`;
         }).join('');
         document.getElementById('details-modal').style.display = 'flex';
