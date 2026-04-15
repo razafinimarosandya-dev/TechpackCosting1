@@ -1033,20 +1033,11 @@
           }
         </style>
 
-        <div class="dropzone" style="max-width: 800px; margin: 0 auto 32px auto;">
-          <div class="dropzone-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path>
-              <path d="M12 11v6"></path>
-              <path d="m9 14 3-3 3 3"></path>
-            </svg>
-          </div>
-          <h4 id="config-pl-name" style="color: var(--primary-color); margin-bottom: 8px;">Assigned PL</h4>
-          <p style="font-weight: 600; font-size: 15px; color: var(--text-main); margin-bottom: 4px;">Please upload
-            techpack</p>
-          <p>Supports PDF, XLSX, and ZIP (Max 5MB)</p>
-          <button class="btn-outline" id="browse-files-btn">Browse Files</button>
+        <div style="max-width: 800px; margin: 0 auto 16px auto;">
+          <label for="upload-remark-input"
+            style="display: block; font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px;">REMARK</label>
+          <textarea id="upload-remark-input" placeholder="Type your remark here..."
+            style="width: 100%; min-height: 90px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; outline: none; font-family: inherit; resize: vertical;"></textarea>
         </div>
 
         <div style="display: flex; justify-content: flex-end; max-width: 800px; margin: 24px auto 0 auto;">
@@ -1127,6 +1118,7 @@
         </div>
       </div>
       <div style="display: flex; justify-content: flex-end; gap: 12px;">
+        <button class="btn-outline" id="clear-filter-btn" style="padding: 8px 16px;">Clear</button>
         <button class="btn-secondary" id="close-filter-btn" style="padding: 8px 16px;">Cancel</button>
         <button class="btn-primary" id="apply-filter-btn" style="padding: 8px 16px;">Apply Filters</button>
       </div>
@@ -1211,6 +1203,12 @@
           style="width: 100%; height: 200px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; resize: vertical;"></textarea>
       </div>
 
+      <div style="margin-bottom: 24px;">
+        <label style="display: block; margin-bottom: 4px; font-weight: 600;">Remark:</label>
+        <textarea id="preview-upload-remark" placeholder="Type upload remark..."
+          style="width: 100%; height: 100px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; resize: vertical;"></textarea>
+      </div>
+
       <div style="display: flex; justify-content: flex-end; gap: 8px;">
         <button class="btn-secondary" id="cancel-email-btn" style="padding: 10px 16px;">Cancel</button>
         <button class="btn-primary" id="confirm-upload-send-btn" style="padding: 10px 16px;">Confirm Upload &amp; Send
@@ -1281,6 +1279,7 @@
 
       // Filter Modal Bindings
       const applyFilterBtn = document.getElementById('apply-filter-btn');
+      const clearFilterBtn = document.getElementById('clear-filter-btn');
       const closeFilterBtn = document.getElementById('close-filter-btn');
       const openFilterBtn = document.getElementById('open-filter');
       const exportExcelBtn = document.getElementById('export-excel-btn');
@@ -1294,6 +1293,18 @@
           advFilter.customer = document.getElementById('filter-cust').value.trim();
           advFilter.pl = document.getElementById('filter-pl').value.trim();
           advFilter.status = document.getElementById('filter-status').value.trim();
+          renderTable();
+          document.getElementById('filter-modal').style.display = 'none';
+        });
+      }
+      if (clearFilterBtn) {
+        clearFilterBtn.addEventListener('click', () => {
+          advFilter = { id: '', style: '', customer: '', pl: '', status: '' };
+          document.getElementById('filter-id').value = '';
+          document.getElementById('filter-style').value = '';
+          document.getElementById('filter-cust').value = '';
+          document.getElementById('filter-pl').value = '';
+          document.getElementById('filter-status').value = '';
           renderTable();
           document.getElementById('filter-modal').style.display = 'none';
         });
@@ -1324,6 +1335,17 @@
         }
         let fallback = new Date(dateStr);
         return isNaN(fallback) ? null : fallback;
+      };
+
+      const formatDateOnly = (dateStr) => {
+        if (!dateStr || dateStr === '-') return '-';
+        if (typeof dateStr === 'string' && dateStr.includes('/')) return dateStr.split(' ')[0];
+        const d = globalParseSheetDate(dateStr) || new Date(dateStr);
+        if (!d || isNaN(d)) return String(dateStr).split(' ')[0] || '-';
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year = d.getFullYear();
+        return `${day}/${month}/${year}`;
       };
 
       function updateStats() {
@@ -1575,8 +1597,12 @@
               document.getElementById('sel-detail-header').textContent = rowData.Fabric_Header || rowData.fabricHeader || '-';
               document.getElementById('sel-detail-pl').textContent = rowData.assignee || rowData.PL_Name || '-';
               document.getElementById('sel-detail-status').textContent = rowData.status || rowData.Status || '-';
-              document.getElementById('sel-detail-created').textContent = rowData.createdDate || rowData.Created || '-';
+              document.getElementById('sel-detail-created').textContent = formatDateOnly(rowData.createdDate || rowData.Created);
               document.getElementById('sel-detail-created-by').textContent = rowData.createdBy || rowData['Created By'] || '-';
+              const uploadRemarkInput = document.getElementById('upload-remark-input');
+              if (uploadRemarkInput) {
+                uploadRemarkInput.value = rowData.remarks || rowData.Remarks || '';
+              }
 
               const folderValue = rowData.folderLink || rowData.Folder_Path || '-';
               const folderEl = document.getElementById('sel-detail-folder');
@@ -1590,11 +1616,6 @@
               const plNameElem = document.getElementById('config-pl-name');
               if (plNameElem) {
                 plNameElem.textContent = rowData.assignee || rowData.PL_Name ? `PL: ${rowData.assignee || rowData.PL_Name}` : 'PL: Unassigned';
-              }
-
-              const browseBtn = document.getElementById('browse-files-btn');
-              if (browseBtn) {
-                browseBtn.dataset.link = rowData.folderLink || rowData.Folder_Path || '';
               }
 
               uploadConfigSection.style.display = 'block';
@@ -1622,17 +1643,14 @@
                 { label: 'Fabric Header', value: rowData.Fabric_Header || rowData.fabricHeader },
                 { label: 'PL Name', value: rowData.PL_Name || rowData.assignee },
                 { label: 'Status', value: rowData.Status || rowData.status },
-                { label: 'Created', value: rowData.Created || rowData.createdDate },
-                { label: 'Created By', value: rowData['Created By'] || rowData.createdBy },
-                { label: 'Folder Path', value: rowData.Folder_Path || rowData.folderLink }
+                { label: 'Created', value: formatDateOnly(rowData.Created || rowData.createdDate) },
+                { label: 'Created By', value: rowData['Created By'] || rowData.createdBy }
               ];
 
               detailsContent.innerHTML = displayFields.map(field => {
                 // Apply special styling to the folder link
                 let displayValue = field.value || '-';
-                if (field.label === 'Folder Path' && displayValue !== '-') {
-                  displayValue = `<a href="${displayValue}" target="_blank" style="color: var(--primary-color); word-break: break-all; text-decoration: underline;">Open Folder</a>`;
-                } else if (field.label === 'Status') {
+                if (field.label === 'Status') {
                   displayValue = `<span class="badge" style="background-color: var(--status-progress-bg); color: var(--status-progress-text); padding: 2px 8px; border-radius: 12px; font-weight: 600; font-size: 12px;">${displayValue}</span>`;
                 }
 
@@ -1671,10 +1689,6 @@
         });
       }
 
-      // --- Navigation to Folder URL ---
-      const browseFilesBtn = document.getElementById('browse-files-btn');
-      let browseDateCaptured = null;
-
       const getFullDateTime = () => {
         const d = new Date();
         const day = String(d.getDate()).padStart(2, '0');
@@ -1686,25 +1700,16 @@
         return `${day}/${month}/${year} ${hr}:${min}:${sec}`;
       };
 
-      if (browseFilesBtn) {
-        browseFilesBtn.addEventListener('click', () => {
-          browseDateCaptured = getFullDateTime();
-          const link = browseFilesBtn.dataset.link;
-          if (link && link.trim() !== '') {
-            window.open(link, '_blank');
-          } else {
-            alert("This record doesn't have a valid Folder Link assigned to it yet!");
-          }
-        });
-      }
-
       // --- Clear Selection ---
       const clearBtn = document.getElementById('clear-request-btn');
       if (clearBtn) {
         clearBtn.addEventListener('click', () => {
           if (activeRequestBanner) activeRequestBanner.style.display = 'none';
           if (uploadConfigSection) uploadConfigSection.style.display = 'none';
-          browseDateCaptured = null;
+          const uploadRemarkInput = document.getElementById('upload-remark-input');
+          if (uploadRemarkInput) uploadRemarkInput.value = '';
+          const previewUploadRemark = document.getElementById('preview-upload-remark');
+          if (previewUploadRemark) previewUploadRemark.value = '';
         });
       }
 
@@ -1716,6 +1721,7 @@
       const previewEmailTo = document.getElementById('preview-email-to');
       const previewEmailSubject = document.getElementById('preview-email-subject');
       const previewEmailBody = document.getElementById('preview-email-body');
+      const previewUploadRemark = document.getElementById('preview-upload-remark');
 
       if (submitBtn && emailModal) {
         submitBtn.addEventListener('click', () => {
@@ -1730,11 +1736,26 @@
           const currentCustomer = document.getElementById('sel-detail-cust').textContent || '-';
           const currentPL = (document.getElementById('sel-detail-pl').textContent || '').replace('PL: ', '').trim();
           const appLink = window.location.origin + window.location.pathname;
+          const uploadRemarkInput = document.getElementById('upload-remark-input');
+          const rowData = requestsRows.find((r, i) => (r.id || `REQ-${i + 1}`) === currentId);
+          const folderPath = rowData ? (rowData.folderLink || rowData.Folder_Path || rowData.folder_path || '').trim() : '';
+
+          // Open folder path on submit while preserving the existing submit flow.
+          if (folderPath && folderPath !== '-' && /^https?:\/\//i.test(folderPath)) {
+            window.open(folderPath, '_blank');
+          }
 
           previewEmailTo.value = "YTeeluck@tropicknits.com";
           previewEmailSubject.value = `Techpack Uploaded: ${currentId}`;
           previewEmailBody.value = `Hi,\n\nTechpack has been uploaded.\n\nRef: ${currentRef}\nC_Number: ${currentId}\nCustomer: ${currentCustomer}\n\nApp link: ${appLink}\n\nRegards,\n\n${currentPL}`;
+          if (previewUploadRemark) {
+            previewUploadRemark.value = uploadRemarkInput
+              ? uploadRemarkInput.value.trim()
+              : (rowData ? (rowData.remarks || rowData.Remarks || '') : '');
+          }
           emailModal.style.display = 'flex';
+          if (activeRequestBanner) activeRequestBanner.style.display = 'none';
+          if (uploadConfigSection) uploadConfigSection.style.display = 'none';
         });
       }
 
@@ -1806,7 +1827,10 @@
             requestId: currentId,
             timestamp: new Date().toISOString(),
             status: 'Awaiting Pattern',
-            PL_Uploaded_Date: browseDateCaptured || getFullDateTime(),
+            PL_Uploaded_Date: getFullDateTime(),
+            remarks: previewUploadRemark ? previewUploadRemark.value.trim() : '',
+            storageAreaRemarks: previewUploadRemark ? previewUploadRemark.value.trim() : '',
+            Storage_Area_Remarks: previewUploadRemark ? previewUploadRemark.value.trim() : '',
             emailTo: previewEmailTo.value.trim(),
             emailSubject: previewEmailSubject.value.trim(),
             emailBody: previewEmailBody.value,
@@ -1824,8 +1848,14 @@
               body: JSON.stringify(payload)
             });
 
-            browseDateCaptured = null;
+            const uploadRemarkInput = document.getElementById('upload-remark-input');
+            if (uploadRemarkInput) uploadRemarkInput.value = '';
+            if (previewUploadRemark) previewUploadRemark.value = '';
             emailModal.style.display = 'none';
+            const detailsModal = document.getElementById('details-modal');
+            if (detailsModal) detailsModal.style.display = 'none';
+            if (activeRequestBanner) activeRequestBanner.style.display = 'none';
+            if (uploadConfigSection) uploadConfigSection.style.display = 'none';
 
             // Refresh full dataset so all counters/tabs are consistent.
             await loadTableData();
@@ -2054,16 +2084,13 @@
                         { label: 'Fabric Header', value: rowData.Fabric_Header || rowData.fabricHeader },
                         { label: 'PL Name', value: rowData.PL_Name || rowData.assignee },
                         { label: 'Status', value: rowData.Status || rowData.status },
-                        { label: 'Created', value: rowData.Created || rowData.createdDate },
-                        { label: 'Created By', value: rowData['Created By'] || rowData.createdBy },
-                        { label: 'Folder Path', value: rowData.Folder_Path || rowData.folderLink }
+                        { label: 'Created', value: formatDateOnly(rowData.Created || rowData.createdDate) },
+                        { label: 'Created By', value: rowData['Created By'] || rowData.createdBy }
                       ];
 
                       detailsContent.innerHTML = displayFields.map(field => {
                         let displayValue = field.value || '-';
-                        if (field.label === 'Folder Path' && displayValue !== '-') {
-                          displayValue = `<a href="${displayValue}" target="_blank" style="color: var(--primary-color); word-break: break-all; text-decoration: underline;">Open Folder</a>`;
-                        } else if (field.label === 'Status') {
+                        if (field.label === 'Status') {
                           displayValue = `<span class="badge" style="background-color: var(--status-progress-bg); color: var(--status-progress-text); padding: 2px 8px; border-radius: 12px; font-weight: 600; font-size: 12px;">${displayValue}</span>`;
                         }
 
@@ -2109,13 +2136,11 @@
           { label: 'PL Name', value: rowData.PL_Name || rowData.assignee },
           { label: 'Remarks', value: rowData.remarks || rowData.Remarks || '' },
           { label: 'Created Date', value: formatToDDMMYYYY(rowData.createdDate || rowData.Created) },
-          { label: 'Folder Path', value: rowData.Folder_Path || rowData.folderLink || '-' },
           { label: 'Status', value: rowData.Status || rowData.status }
         ];
         detailsContent.innerHTML = displayFields.map(field => {
           let displayValue = field.value || '-';
           if (field.label === 'Status') displayValue = `<span class="badge" style="background-color: var(--status-progress-bg); color: var(--status-progress-text); padding: 4px 8px; border-radius: 12px; font-weight: 600; font-size: 11px;">${displayValue}</span>`;
-          else if (field.label === 'Folder Path' && field.value !== '-' && field.value.startsWith('http')) displayValue = `<a href="${field.value}" target="_blank" style="color: var(--primary-color); text-decoration: underline;">Open Folder</a>`;
           return `<div style="display:flex; justify-content:space-between; border-bottom:1px solid #f3f4f6; padding: 10px 4px; align-items: flex-start; gap: 16px;"><strong style="color: var(--text-muted); font-weight: 500; min-width: 120px;">${field.label}</strong><span style="color: var(--text-main); font-weight: 500; text-align: right; word-break: break-word;">${displayValue}</span></div>`;
         }).join('');
         document.getElementById('details-modal').style.display = 'flex';
