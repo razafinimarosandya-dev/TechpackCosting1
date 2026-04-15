@@ -1548,9 +1548,8 @@
             }
 
             actionButtons = `
-          <div style="display: flex; justify-content: center; align-items: center; gap: 8px;">
-            <button class="btn-outline details-btn" data-id="${safeId}" style="padding: 6px 10px; font-size: 12px;">Details</button>
-            <button class="btn-outline remarks-btn" data-id="${safeId}" style="padding: 6px 10px; font-size: 12px;">Remarks</button>
+          <div style="display: flex; justify-content: center; align-items: center;">
+            <button class="btn-outline details-btn" data-id="${safeId}" style="padding: 6px 12px; font-size: 12px;">Details</button>
           </div>
         `;
           }
@@ -1644,7 +1643,9 @@
                 { label: 'PL Name', value: rowData.PL_Name || rowData.assignee },
                 { label: 'Status', value: rowData.Status || rowData.status },
                 { label: 'Created', value: formatDateOnly(rowData.Created || rowData.createdDate) },
-                { label: 'Created By', value: rowData['Created By'] || rowData.createdBy }
+                { label: 'Created By', value: rowData['Created By'] || rowData.createdBy },
+                { label: 'Remarks', value: rowData.remarks || rowData.Remarks || '' },
+                { label: 'Remarks Techpack', value: rowData.Remarks_Techpack || rowData.remarks_techpack || '' }
               ];
 
               detailsContent.innerHTML = displayFields.map(field => {
@@ -1723,8 +1724,8 @@
       const previewEmailBody = document.getElementById('preview-email-body');
       const previewUploadRemark = document.getElementById('preview-upload-remark');
 
-      if (submitBtn && emailModal) {
-        submitBtn.addEventListener('click', () => {
+      if (submitBtn) {
+        submitBtn.addEventListener('click', async () => {
           const activeReqId = document.getElementById('sel-detail-id').textContent;
           if (!activeReqId || activeReqId === '-' || activeReqId === 'Request ID: -') {
             alert("No active request selected!");
@@ -1740,22 +1741,76 @@
           const rowData = requestsRows.find((r, i) => (r.id || `REQ-${i + 1}`) === currentId);
           const folderPath = rowData ? (rowData.folderLink || rowData.Folder_Path || rowData.folder_path || '').trim() : '';
 
-          // Open folder path on submit while preserving the existing submit flow.
+          // Open folder path on submit
           if (folderPath && folderPath !== '-' && /^https?:\/\//i.test(folderPath)) {
             window.open(folderPath, '_blank');
           }
 
-          previewEmailTo.value = "YTeeluck@tropicknits.com";
-          previewEmailSubject.value = `Techpack Uploaded: ${currentId}`;
-          previewEmailBody.value = `Hi,\n\nTechpack has been uploaded.\n\nRef: ${currentRef}\nC_Number: ${currentId}\nCustomer: ${currentCustomer}\n\nApp link: ${appLink}\n\nRegards,\n\n${currentPL}`;
-          if (previewUploadRemark) {
-            previewUploadRemark.value = uploadRemarkInput
-              ? uploadRemarkInput.value.trim()
-              : (rowData ? (rowData.remarks || rowData.Remarks || '') : '');
+          const originalText = submitBtn.textContent;
+          submitBtn.textContent = "Saving to Database...";
+          submitBtn.style.opacity = '0.7';
+          submitBtn.style.pointerEvents = 'none';
+
+          const remarkText = uploadRemarkInput ? uploadRemarkInput.value.trim() : (rowData ? (rowData.remarks || rowData.Remarks || '') : '');
+
+          const prevStatus = rowData ? (rowData.Status || rowData.status || 'Awaiting Techpack') : 'Awaiting Techpack';
+          const nextStatus = 'Awaiting Pattern';
+          const nowD = new Date();
+          const uploadDateStr = `${nowD.getFullYear()}-${String(nowD.getMonth() + 1).padStart(2, '0')}-${String(nowD.getDate()).padStart(2, '0')}`;
+
+          const payload = {
+            requestId: currentId,
+            timestamp: new Date().toISOString(),
+            status: nextStatus,
+            PL_Uploaded_Date: getFullDateTime(),
+            remarksTechpack: remarkText,
+            remarks: remarkText,
+            storageAreaRemarks: remarkText,
+            Storage_Area_Remarks: remarkText,
+            // Automatically handled by backend based on PL Name if empty
+            emailTo: '',
+            emailSubject: `The request ${currentId} has been updated.`,
+            emailBody: `Hello,\n\nThe request ${currentId} has been updated.\n\nChanges:\n- Status: '${prevStatus}' -> '${nextStatus}'\n- Tehpack_uplaodDate: '' -> '${uploadDateStr}'\n\nLink : ${appLink}\nBest regards,\nGarmentCost System.`,
+            plAlias: currentPL || "Techpack System",
+            currentRef: currentRef,
+            currentCustomer: currentCustomer,
+            appLink: appLink
+          };
+
+          try {
+            await fetch(GOOGLE_SCRIPT_URL, {
+              method: 'POST',
+              mode: 'no-cors',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+
+            if (uploadRemarkInput) uploadRemarkInput.value = '';
+            const detailsModal = document.getElementById('details-modal');
+            if (detailsModal) detailsModal.style.display = 'none';
+            if (activeRequestBanner) activeRequestBanner.style.display = 'none';
+            if (uploadConfigSection) uploadConfigSection.style.display = 'none';
+
+            // Refresh full dataset
+            await loadTableData();
+
+            // Ensure user sees the updated list immediately.
+            currentTab = 'Completed';
+            if (navCompleted && navUploads && navCalendar) {
+              navCompleted.classList.add('active');
+              navUploads.classList.remove('active');
+              navCalendar.classList.remove('active');
+            }
+            renderTable();
+
+          } catch (error) {
+            console.error("Error saving data:", error);
+            alert("❌ Failed to save data. See console for details.");
+          } finally {
+            submitBtn.textContent = originalText;
+            submitBtn.style.opacity = '1';
+            submitBtn.style.pointerEvents = 'auto';
           }
-          emailModal.style.display = 'flex';
-          if (activeRequestBanner) activeRequestBanner.style.display = 'none';
-          if (uploadConfigSection) uploadConfigSection.style.display = 'none';
         });
       }
 
@@ -1810,75 +1865,6 @@
         cancelEmailBtn.addEventListener('click', () => emailModal.style.display = 'none');
       }
 
-      if (confirmUploadBtn) {
-        confirmUploadBtn.addEventListener('click', async () => {
-          const activeReqId = document.getElementById('sel-detail-id').textContent;
-          const currentId = activeReqId.replace('Request ID: ', '').trim();
-          const currentRef = document.getElementById('sel-detail-title').textContent || '-';
-          const currentCustomer = document.getElementById('sel-detail-cust').textContent || '-';
-          const currentPL = (document.getElementById('sel-detail-pl').textContent || '').replace('PL: ', '').trim();
-
-          const originalText = confirmUploadBtn.textContent;
-          confirmUploadBtn.textContent = "Saving to Database...";
-          confirmUploadBtn.style.opacity = '0.7';
-          confirmUploadBtn.style.pointerEvents = 'none';
-
-          const payload = {
-            requestId: currentId,
-            timestamp: new Date().toISOString(),
-            status: 'Awaiting Pattern',
-            PL_Uploaded_Date: getFullDateTime(),
-            remarks: previewUploadRemark ? previewUploadRemark.value.trim() : '',
-            storageAreaRemarks: previewUploadRemark ? previewUploadRemark.value.trim() : '',
-            Storage_Area_Remarks: previewUploadRemark ? previewUploadRemark.value.trim() : '',
-            emailTo: previewEmailTo.value.trim(),
-            emailSubject: previewEmailSubject.value.trim(),
-            emailBody: previewEmailBody.value,
-            plAlias: currentPL || "Techpack System",
-            currentRef: currentRef,
-            currentCustomer: currentCustomer,
-            appLink: window.location.origin + window.location.pathname
-          };
-
-          try {
-            await fetch(GOOGLE_SCRIPT_URL, {
-              method: 'POST',
-              mode: 'no-cors',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload)
-            });
-
-            const uploadRemarkInput = document.getElementById('upload-remark-input');
-            if (uploadRemarkInput) uploadRemarkInput.value = '';
-            if (previewUploadRemark) previewUploadRemark.value = '';
-            emailModal.style.display = 'none';
-            const detailsModal = document.getElementById('details-modal');
-            if (detailsModal) detailsModal.style.display = 'none';
-            if (activeRequestBanner) activeRequestBanner.style.display = 'none';
-            if (uploadConfigSection) uploadConfigSection.style.display = 'none';
-
-            // Refresh full dataset so all counters/tabs are consistent.
-            await loadTableData();
-
-            // Ensure user sees the updated list immediately.
-            currentTab = 'Completed';
-            if (navCompleted && navUploads && navCalendar) {
-              navCompleted.classList.add('active');
-              navUploads.classList.remove('active');
-              navCalendar.classList.remove('active');
-            }
-            renderTable();
-
-          } catch (error) {
-            console.error("Error saving data:", error);
-            alert("❌ Failed to save data. See console for details.");
-          } finally {
-            confirmUploadBtn.textContent = originalText;
-            confirmUploadBtn.style.opacity = '1';
-            confirmUploadBtn.style.pointerEvents = 'auto';
-          }
-        });
-      }
 
       // --- Search Input ---
       const searchInput = document.getElementById('search-input');
@@ -2085,7 +2071,9 @@
                         { label: 'PL Name', value: rowData.PL_Name || rowData.assignee },
                         { label: 'Status', value: rowData.Status || rowData.status },
                         { label: 'Created', value: formatDateOnly(rowData.Created || rowData.createdDate) },
-                        { label: 'Created By', value: rowData['Created By'] || rowData.createdBy }
+                        { label: 'Created By', value: rowData['Created By'] || rowData.createdBy },
+                        { label: 'Remarks', value: rowData.remarks || rowData.Remarks || '' },
+                        { label: 'Remarks Techpack', value: rowData.Remarks_Techpack || rowData.remarks_techpack || '' }
                       ];
 
                       detailsContent.innerHTML = displayFields.map(field => {
@@ -2135,6 +2123,7 @@
           { label: 'Style', value: rowData.Style || rowData.style },
           { label: 'PL Name', value: rowData.PL_Name || rowData.assignee },
           { label: 'Remarks', value: rowData.remarks || rowData.Remarks || '' },
+          { label: 'Remarks Techpack', value: rowData.Remarks_Techpack || rowData.remarks_techpack || '' },
           { label: 'Created Date', value: formatToDDMMYYYY(rowData.createdDate || rowData.Created) },
           { label: 'Status', value: rowData.Status || rowData.status }
         ];
