@@ -1006,6 +1006,10 @@
               <label>Created By</label>
               <div id="sel-detail-created-by">-</div>
             </div>
+            <div class="detail-item">
+              <label>Remarks</label>
+              <div id="sel-detail-remarks">-</div>
+            </div>
             <div class="detail-item"
               style="grid-column: 1 / -1; border-top: 1px solid #e2e8f0; padding-top: 12px; margin-top: 4px;">
               <label>Folder Path</label>
@@ -1035,7 +1039,7 @@
 
         <div style="max-width: 800px; margin: 0 auto 16px auto;">
           <label for="upload-remark-input"
-            style="display: block; font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px;">REMARK</label>
+            style="display: block; font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px;">REMARK PL</label>
           <textarea id="upload-remark-input" placeholder="Type your remark here..."
             style="width: 100%; min-height: 90px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; outline: none; font-family: inherit; resize: vertical;"></textarea>
         </div>
@@ -1598,9 +1602,11 @@
               document.getElementById('sel-detail-status').textContent = rowData.status || rowData.Status || '-';
               document.getElementById('sel-detail-created').textContent = formatDateOnly(rowData.createdDate || rowData.Created);
               document.getElementById('sel-detail-created-by').textContent = rowData.createdBy || rowData['Created By'] || '-';
+              document.getElementById('sel-detail-remarks').textContent = rowData.remarks || rowData.Remarks || '-';
+
               const uploadRemarkInput = document.getElementById('upload-remark-input');
               if (uploadRemarkInput) {
-                uploadRemarkInput.value = rowData.remarks || rowData.Remarks || '';
+                uploadRemarkInput.value = '';
               }
 
               const folderValue = rowData.folderLink || rowData.Folder_Path || '-';
@@ -1645,7 +1651,8 @@
                 { label: 'Created', value: formatDateOnly(rowData.Created || rowData.createdDate) },
                 { label: 'Created By', value: rowData['Created By'] || rowData.createdBy },
                 { label: 'Remarks', value: rowData.remarks || rowData.Remarks || '' },
-                { label: 'Remarks Techpack', value: rowData.Remarks_Techpack || rowData.remarks_techpack || '' }
+                { label: 'Remarks Techpack', value: rowData.Remarks_Techpack || rowData.remarks_techpack || '' },
+                { label: 'Folder Path', value: rowData.folderLink || rowData.Folder_Path || '' }
               ];
 
               detailsContent.innerHTML = displayFields.map(field => {
@@ -1653,6 +1660,9 @@
                 let displayValue = field.value || '-';
                 if (field.label === 'Status') {
                   displayValue = `<span class="badge" style="background-color: var(--status-progress-bg); color: var(--status-progress-text); padding: 2px 8px; border-radius: 12px; font-weight: 600; font-size: 12px;">${displayValue}</span>`;
+                }
+                if (field.label === 'Folder Path' && displayValue !== '-' && /^https?:\/\//i.test(displayValue)) {
+                  displayValue = `<a href="${displayValue}" target="_blank" style="color: var(--primary-color); text-decoration: underline; font-weight: 600;">Open Folder</a>`;
                 }
 
                 return `
@@ -2073,13 +2083,17 @@
                         { label: 'Created', value: formatDateOnly(rowData.Created || rowData.createdDate) },
                         { label: 'Created By', value: rowData['Created By'] || rowData.createdBy },
                         { label: 'Remarks', value: rowData.remarks || rowData.Remarks || '' },
-                        { label: 'Remarks Techpack', value: rowData.Remarks_Techpack || rowData.remarks_techpack || '' }
+                        { label: 'Remarks Techpack', value: rowData.Remarks_Techpack || rowData.remarks_techpack || '' },
+                        { label: 'Folder Path', value: rowData.folderLink || rowData.Folder_Path || rowData.folder_path || '' }
                       ];
 
                       detailsContent.innerHTML = displayFields.map(field => {
                         let displayValue = field.value || '-';
                         if (field.label === 'Status') {
                           displayValue = `<span class="badge" style="background-color: var(--status-progress-bg); color: var(--status-progress-text); padding: 2px 8px; border-radius: 12px; font-weight: 600; font-size: 12px;">${displayValue}</span>`;
+                        }
+                        if (field.label === 'Folder Path' && displayValue !== '-' && /^https?:\/\//i.test(displayValue)) {
+                          displayValue = `<a href="${displayValue}" target="_blank" style="color: var(--primary-color); text-decoration: underline; font-weight: 600;">Open Folder</a>`;
                         }
 
                         return `
@@ -2125,11 +2139,15 @@
           { label: 'Remarks', value: rowData.remarks || rowData.Remarks || '' },
           { label: 'Remarks Techpack', value: rowData.Remarks_Techpack || rowData.remarks_techpack || '' },
           { label: 'Created Date', value: formatToDDMMYYYY(rowData.createdDate || rowData.Created) },
-          { label: 'Status', value: rowData.Status || rowData.status }
+          { label: 'Status', value: rowData.Status || rowData.status },
+          { label: 'Folder Path', value: rowData.folderLink || rowData.Folder_Path || '' }
         ];
         detailsContent.innerHTML = displayFields.map(field => {
           let displayValue = field.value || '-';
           if (field.label === 'Status') displayValue = `<span class="badge" style="background-color: var(--status-progress-bg); color: var(--status-progress-text); padding: 4px 8px; border-radius: 12px; font-weight: 600; font-size: 11px;">${displayValue}</span>`;
+          if (field.label === 'Folder Path' && displayValue !== '-' && /^https?:\/\//i.test(displayValue)) {
+            displayValue = `<a href="${displayValue}" target="_blank" style="color: var(--primary-color); text-decoration: underline; font-weight: 600;">Open Folder</a>`;
+          }
           return `<div style="display:flex; justify-content:space-between; border-bottom:1px solid #f3f4f6; padding: 10px 4px; align-items: flex-start; gap: 16px;"><strong style="color: var(--text-muted); font-weight: 500; min-width: 120px;">${field.label}</strong><span style="color: var(--text-main); font-weight: 500; text-align: right; word-break: break-word;">${displayValue}</span></div>`;
         }).join('');
         document.getElementById('details-modal').style.display = 'flex';
