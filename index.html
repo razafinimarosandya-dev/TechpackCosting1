@@ -948,12 +948,6 @@
               <label>TKL Season</label>
               <div id="sel-detail-season">-</div>
             </div>
-            <div class="detail-item" style="grid-column: 1 / -1; border-top: 1px dotted #e2e8f0; padding-top: 12px; margin-top: 8px;">
-              <label>Fabric Details</label>
-              <div id="sel-detail-fabric-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
-                <div style="color: var(--text-muted); font-style: italic; font-size: 12px;">No fabric details available</div>
-              </div>
-            </div>
             <div class="detail-item">
               <label>PL Name</label>
               <div id="sel-detail-pl">-</div>
@@ -969,6 +963,12 @@
             <div class="detail-item">
               <label>Created By</label>
               <div id="sel-detail-created-by">-</div>
+            </div>
+            <div class="detail-item" style="grid-column: 1 / -1; border-top: 1px dotted #e2e8f0; padding-top: 12px; margin-top: 8px;">
+              <label>Fabric Details</label>
+              <div id="sel-detail-fabric-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+                <div style="color: var(--text-muted); font-style: italic; font-size: 12px;">No fabric details available</div>
+              </div>
             </div>
             <div class="detail-item"
               style="grid-column: 1 / -1; border-top: 1px solid #e2e8f0; padding-top: 12px; margin-top: 4px;">
@@ -2350,7 +2350,7 @@
         listContainer.className = "form-list";
 
         // Internal/Technical keys to exclude from display loop (will handle Folder_Path later)
-        const excludeKeys = ['_rowIndex', 'Fabric Add Ons', 'Fabric_Add_Ons', 'folderLink', 'avatar', 'statusClass', 'id', 'Style', 'Main_Fabric', 'Fabric_Header', 'Folder_Path', 'Folder Path'];
+        const excludeKeys = ['_rowIndex', 'Fabric Add Ons', 'Fabric_Add_Ons', 'folderLink', 'avatar', 'statusClass', 'id', 'Style', 'Main_Fabric', 'Fabric_Header', 'Folder_Path', 'Folder Path', 'PowerAppsId', 'PowerAppsId__'];
 
         Object.keys(rowData).forEach(key => {
           if (excludeKeys.includes(key)) return;
