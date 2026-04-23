@@ -948,6 +948,12 @@
               <label>TKL Season</label>
               <div id="sel-detail-season">-</div>
             </div>
+            <div class="detail-item" style="grid-column: 1 / -1; border-top: 1px dotted #e2e8f0; padding-top: 12px; margin-top: 8px;">
+              <label>Fabric Details</label>
+              <div id="sel-detail-fabric-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+                <div style="color: var(--text-muted); font-style: italic; font-size: 12px;">No fabric details available</div>
+              </div>
+            </div>
             <div class="detail-item">
               <label>PL Name</label>
               <div id="sel-detail-pl">-</div>
@@ -963,12 +969,6 @@
             <div class="detail-item">
               <label>Created By</label>
               <div id="sel-detail-created-by">-</div>
-            </div>
-            <div class="detail-item" style="grid-column: 1 / -1; border-top: 1px dotted #e2e8f0; padding-top: 12px; margin-top: 8px;">
-              <label>Fabric Details</label>
-              <div id="sel-detail-fabric-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
-                <div style="color: var(--text-muted); font-style: italic; font-size: 12px;">No fabric details available</div>
-              </div>
             </div>
             <div class="detail-item"
               style="grid-column: 1 / -1; border-top: 1px solid #e2e8f0; padding-top: 12px; margin-top: 4px;">
@@ -1040,6 +1040,179 @@
             word-break: break-word;
             line-height: 1.2;
           }
+
+  /* Modal System from Meeting Module */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.42);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2500;
+    backdrop-filter: blur(2px);
+  }
+
+  .modal-window {
+    background: white;
+    width: 920px;
+    max-width: 96vw;
+    max-height: 90vh;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    animation: modalFadeUp 0.3s ease-out;
+  }
+
+  @keyframes modalFadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .modal-header {
+    padding: 1.25rem 1.75rem;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .modal-header h2 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #94a3b8;
+    transition: color 0.2s;
+  }
+
+  .close-btn:hover { color: #475569; }
+
+  .modal-body {
+    padding: 1.75rem;
+    overflow-y: auto;
+    flex: 1;
+    background: #fff;
+  }
+
+  .modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    background: #f8fafc;
+  }
+
+  /* Detail List Styling */
+  .form-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px dashed #e2e8f0;
+    padding: 0.75rem 0.5rem;
+    align-items: flex-start;
+    gap: 24px;
+  }
+
+  .detail-row:last-child { border-bottom: none; }
+
+  .detail-label {
+    color: #64748b;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    min-width: 160px;
+  }
+
+  .detail-value {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #1e293b;
+    text-align: right;
+    word-break: break-word;
+  }
+
+  /* Fabric Table Styling */
+  .fabric-table-wrap {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    margin-top: 24px;
+    margin-bottom: 24px;
+    overflow: hidden;
+    background: #f8fafc;
+  }
+
+  .fabric-table-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f1f5f9;
+  }
+
+  .fabric-table-title {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .fabric-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  .fabric-table th, .fabric-table td {
+    border-right: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 10px 12px;
+    font-size: 0.82rem;
+    text-align: left;
+  }
+
+  .fabric-table th {
+    background: #f8fafc;
+    color: #64748b;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+  }
+
+  .fabric-table td { background: #fff; color: #1e293b; }
+  .fabric-table tr:last-child td { border-bottom: none; }
+  .fabric-table th:last-child, .fabric-table td:last-child { border-right: none; }
+
+  .fabric-opt-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: var(--primary-color);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
         </style>
 
         <div style="max-width: 800px; margin: 0 auto 16px auto;">
@@ -1135,17 +1308,20 @@
     </div>
   </div>
 
-  <!-- Details Modal -->
-  <div class="modal" id="details-modal"
-    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center;">
-    <div class="card"
-      style="width: 500px; padding: 24px; background: white; border-radius: 8px; max-height: 80vh; overflow-y: auto;">
-      <h3 style="margin-bottom: 16px; border-bottom: 1px solid #ddd; padding-bottom: 8px;">Request Details</h3>
-      <div id="details-content" style="line-height: 1.6; font-size: 14px; margin-bottom: 24px;">
-        <!-- Populated via JS -->
+  <!-- Details Modal (Premium Meeting Design) -->
+  <div class="modal-backdrop" id="details-modal">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h2>Request Details</h2>
+        <button class="close-btn" id="close-details-btn">&times;</button>
       </div>
-      <div style="display: flex; justify-content: flex-end;">
-        <button class="btn-secondary" id="close-details-btn" style="padding: 8px 16px;">Close</button>
+      <div class="modal-body">
+        <div id="details-content">
+          <!-- Details injected here via JS -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="document.getElementById('details-modal').style.display='none';" style="padding: 10px 20px; font-weight: 600;">Close</button>
       </div>
     </div>
   </div>
@@ -1242,8 +1418,8 @@
       // --- Dynamic Table Data (from Google Sheets) ---
       let requestsRows = [];
 
-      function renderFabricDetails(row) {
-        const container = document.getElementById('sel-detail-fabric-container') || document.getElementById('modal-fabric-container');
+      function renderFabricDetails(row, targetContainerId = 'sel-detail-fabric-container') {
+        const container = document.getElementById(targetContainerId);
         if (!container) return;
         container.innerHTML = '';
 
@@ -1258,56 +1434,57 @@
           }
         }
 
-        // Fallback or Single Legacy Item
         if (!Array.isArray(fabricRows) || fabricRows.length === 0) {
           const mainFabric = row.Main_Fabric || row.mainFabric || row['Fabric Add Ons'] || '-';
-          if (mainFabric !== '-') {
+          if (mainFabric !== '-' && mainFabric !== '') {
             fabricRows = [{
               opt: 'A',
               fabric: mainFabric,
-              header: row.Fabric_Header || row.fabricHeader || '-'
+              header: row.Fabric_Header || row.fabricHeader || '-',
+              type: '-', gms: '-', composition: '-', width: '-'
             }];
           }
         }
 
         if (!Array.isArray(fabricRows) || fabricRows.length === 0) {
-          container.innerHTML = '<div style="color: var(--text-muted); font-style: italic; font-size: 12px;">No fabric details available</div>';
+          container.innerHTML = '<div style="color: var(--text-muted); font-style: italic; font-size: 12px; padding: 10px;">No fabric details available</div>';
           return;
         }
 
-        fabricRows.forEach((item, idx) => {
-          const opt = item.opt || String.fromCharCode(65 + idx);
-          const html = `
-            <div class="fabric-badge-item" style="grid-template-columns: 30px 80px 1.5fr 70px 1.5fr 70px 90px; align-items: start; min-width: 850px;">
-              <div class="fabric-badge-opt" style="margin-top: 4px;">${opt}</div>
-              <div class="fabric-info-col">
-                <span class="fabric-info-label">Type</span>
-                <span class="fabric-info-val">${item.type || '-'}</span>
-              </div>
-              <div class="fabric-info-col">
-                <span class="fabric-info-label">Fabric</span>
-                <span class="fabric-info-val">${item.fabric || '-'}</span>
-              </div>
-              <div class="fabric-info-col">
-                <span class="fabric-info-label">Gms</span>
-                <span class="fabric-info-val">${item.gms || '-'}</span>
-              </div>
-              <div class="fabric-info-col">
-                <span class="fabric-info-label">Composition</span>
-                <span class="fabric-info-val">${item.composition || '-'}</span>
-              </div>
-              <div class="fabric-info-col">
-                <span class="fabric-info-label">Width</span>
-                <span class="fabric-info-val">${item.width || '-'}</span>
-              </div>
-              <div class="fabric-info-col" style="border-left: 1px solid #e2e8f0; padding-left: 10px;">
-                <span class="fabric-info-label">Header</span>
-                <span class="fabric-info-val">${item.header || '-'}</span>
-              </div>
+        const tableHtml = `
+          <div class="fabric-table-wrap">
+            <div class="fabric-table-toolbar">
+              <span class="fabric-table-title">Fabric Technical Details</span>
             </div>
-          `;
-          container.insertAdjacentHTML('beforeend', html);
-        });
+            <table class="fabric-table">
+              <thead>
+                <tr>
+                  <th style="width: 45px;">OPT</th>
+                  <th>Type</th>
+                  <th>Fabric Name</th>
+                  <th style="width: 70px;">GMS</th>
+                  <th>Composition</th>
+                  <th style="width: 70px;">Width</th>
+                  <th>Header</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${fabricRows.map((item, idx) => `
+                  <tr>
+                    <td><div class="fabric-opt-chip">${item.opt || String.fromCharCode(65 + idx)}</div></td>
+                    <td>${item.type || '-'}</td>
+                    <td style="font-weight: 600;">${item.fabric || '-'}</td>
+                    <td>${item.gms || '-'}</td>
+                    <td>${item.composition || '-'}</td>
+                    <td>${item.width || '-'}</td>
+                    <td>${item.header || '-'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+        container.innerHTML = tableHtml;
       }
 
       // Filter states
@@ -1719,55 +1896,7 @@
           btn.addEventListener('click', (e) => {
             const id = e.currentTarget.getAttribute('data-id');
             const rowData = requestsRows.find((r, i) => (r.C_Number || r.id || `REQ-${i + 1}`) === id);
-
-            if (rowData) {
-              const detailsContent = document.getElementById('details-content');
-              
-              // Internal keys to ignore
-              const ignoreKeys = ['_rowIndex', 'Fabric Add Ons', 'Fabric_Add_Ons', 'folderLink', 'Folder_Path'];
-              
-              const htmlEntries = Object.entries(rowData)
-                .filter(([key, val]) => {
-                  if (ignoreKeys.includes(key)) return false;
-                  if (!val || String(val).trim() === '-' || String(val).trim() === '') return false;
-                  return true;
-                })
-                .map(([key, val]) => {
-                  let displayValue = val;
-                  let displayLabel = key.replace(/_/g, ' ');
-
-                  if (key.toLowerCase().includes('status')) {
-                    displayValue = `<span class="badge" style="background-color: var(--status-progress-bg); color: var(--status-progress-text); padding: 2px 8px; border-radius: 12px; font-weight: 600; font-size: 12px;">${val}</span>`;
-                  } else if (key.toLowerCase().includes('date') || key.toLowerCase() === 'created') {
-                    displayValue = formatDateOnly(val);
-                  }
-
-                  return `
-                    <div style="display:flex; justify-content:space-between; border-bottom:1px solid #f3f4f6; padding: 10px 4px; align-items: flex-start; gap: 16px;">
-                      <strong style="color: var(--text-muted); font-weight: 500; min-width: 140px; text-transform: capitalize;">${displayLabel}</strong>
-                      <span style="color: var(--text-main); font-weight: 500; text-align: right; word-break: break-word;">${displayValue}</span>
-                    </div>
-                  `;
-                }).join('');
-
-              detailsContent.innerHTML = htmlEntries;
-              
-              // Add Fabric Section at the bottom
-              detailsContent.insertAdjacentHTML('beforeend', `
-                <div style="margin-top: 16px; border-top: 2px solid #2563eb; padding-top: 16px;">
-                  <strong style="display: block; color: var(--primary-color); font-size: 11px; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.1em;">Fabric Details (Complete)</strong>
-                  <div id="modal-fabric-container" style="overflow-x: auto; display: flex; flex-direction: column; gap: 8px;"></div>
-                </div>
-              `);
-              
-              const modalFabricContainer = document.getElementById('modal-fabric-container');
-              const oldContainerId = 'sel-detail-fabric-container';
-              modalFabricContainer.id = oldContainerId; 
-              renderFabricDetails(rowData);
-              modalFabricContainer.id = 'modal-fabric-container'; 
-
-              document.getElementById('details-modal').style.display = 'flex';
-            }
+            openDetailsInternal(rowData);
           });
         });
 
@@ -2156,48 +2285,14 @@
                        <button class="btn-outline calendar-details-btn" data-id="${r.id}" style="padding: 6px 10px; font-size: 12px;">View Details</button>
                     </div>
                  `).join('');
-
+                
                 // Bind those new buttons to the Details pane!
                 const calDetailsBtns = content.querySelectorAll('.calendar-details-btn');
                 calDetailsBtns.forEach(btn => {
                   btn.addEventListener('click', (e) => {
                     const id = e.currentTarget.getAttribute('data-id');
                     const rowData = requestsRows.find(r => r.id === id);
-
-                    if (rowData) {
-                      const detailsContent = document.getElementById('details-content');
-
-                      // Exactly identical logic to your Completed Table Details!
-                      const displayFields = [
-                        { label: 'C_Number', value: rowData.id },
-                        { label: 'Customer Reference', value: rowData.Style || rowData.style || rowData.Customer_Ref || rowData.customerRef },
-                        { label: 'Customer Type', value: rowData.Customer_Type || rowData.customerType || rowData.Cus_Dept || rowData.cusDept },
-                        { label: 'Customer', value: rowData.Customer || rowData.customer },
-                        { label: 'TKL Season', value: rowData.TKL_Season || rowData.tklSeason },
-                        { label: 'Main Fabric', value: rowData.Main_Fabric || rowData.mainFabric },
-                        { label: 'Fabric Header', value: rowData.Fabric_Header || rowData.fabricHeader },
-                        { label: 'PL Name', value: rowData.PL_Name || rowData.assignee },
-                        { label: 'Status', value: rowData.Status || rowData.status },
-                        { label: 'Created', value: formatDateOnly(rowData.Created || rowData.createdDate) },
-                        { label: 'Created By', value: rowData['Created By'] || rowData.createdBy }
-                      ];
-
-                      detailsContent.innerHTML = displayFields.map(field => {
-                        let displayValue = field.value || '-';
-                        if (field.label === 'Status') {
-                          displayValue = `<span class="badge" style="background-color: var(--status-progress-bg); color: var(--status-progress-text); padding: 2px 8px; border-radius: 12px; font-weight: 600; font-size: 12px;">${displayValue}</span>`;
-                        }
-
-                        return `
-                              <div style="display:flex; justify-content:space-between; border-bottom:1px solid #f3f4f6; padding: 10px 4px; align-items: flex-start; gap: 16px;">
-                                <strong style="color: var(--text-muted); font-weight: 500; min-width: 120px;">${field.label}</strong>
-                                <span style="color: var(--text-main); font-weight: 500; text-align: right; word-break: break-word;">${displayValue}</span>
-                              </div>
-                            `;
-                      }).join('');
-
-                      document.getElementById('details-modal').style.display = 'flex';
-                    }
+                    openDetailsInternal(rowData);
                   });
                 });
 
@@ -2219,26 +2314,74 @@
         });
       }
 
-      function openDetails(id) {
-        const rowData = requestsRows.find((r, i) => (r.id || `REQ-${i + 1}`) === id);
+      function openDetailsInternal(rowData) {
         if (!rowData) return;
         const detailsContent = document.getElementById('details-content');
-        const displayFields = [
-          { label: 'C_Number', value: rowData.id },
-          { label: 'Customer Reference', value: rowData.Style || rowData.style || rowData.Customer_Ref || rowData.customerRef },
-          { label: 'Customer Type', value: rowData.Customer_Type || rowData.customerType || rowData.Cus_Dept || rowData.cusDept },
-          { label: 'Customer', value: rowData.Customer || rowData.customer },
-          { label: 'PL Name', value: rowData.PL_Name || rowData.assignee },
-          { label: 'Remarks', value: rowData.remarks || rowData.Remarks || '' },
-          { label: 'Created Date', value: formatToDDMMYYYY(rowData.createdDate || rowData.Created) },
-          { label: 'Status', value: rowData.Status || rowData.status }
+        
+        // Internal keys to ignore
+        const ignoreKeys = ['_rowIndex', 'Fabric Add Ons', 'Fabric_Add_Ons', 'folderLink', 'Folder_Path'];
+        
+        // Define common field mappings to ensure consistent display
+        const displayMappings = [
+          { label: 'C Number', key: ['C_Number', 'id'] },
+          { label: 'Customer Reference', key: ['Customer_Ref', 'style', 'Style'] },
+          { label: 'Customer', key: ['Customer', 'customer'] },
+          { label: 'Customer Type', key: ['Customer_Type', 'customerType', 'Cus_Dept'] },
+          { label: 'TKL Season', key: ['TKL_Season', 'Season'] },
+          { label: 'PL Name', key: ['PL_Name', 'assignee'] },
+          { label: 'Status', key: ['Status', 'status'] },
+          { label: 'Created By', key: ['Created By', 'createdBy'] },
+          { label: 'Created Date', key: ['Created', 'createdDate'] },
+          { label: 'Remarks', key: ['Remarks', 'remarks', 'Remarks Techpack'] }
         ];
-        detailsContent.innerHTML = displayFields.map(field => {
-          let displayValue = field.value || '-';
-          if (field.label === 'Status') displayValue = `<span class="badge" style="background-color: var(--status-progress-bg); color: var(--status-progress-text); padding: 4px 8px; border-radius: 12px; font-weight: 600; font-size: 11px;">${displayValue}</span>`;
-          return `<div style="display:flex; justify-content:space-between; border-bottom:1px solid #f3f4f6; padding: 10px 4px; align-items: flex-start; gap: 16px;"><strong style="color: var(--text-muted); font-weight: 500; min-width: 120px;">${field.label}</strong><span style="color: var(--text-main); font-weight: 500; text-align: right; word-break: break-word;">${displayValue}</span></div>`;
+
+        let htmlEntries = displayMappings.map(map => {
+          const actualKey = map.key.find(k => rowData[k] !== undefined && rowData[k] !== null && String(rowData[k]).trim() !== '');
+          if (!actualKey) return '';
+          
+          let val = rowData[actualKey];
+          let displayValue = val;
+          if (map.label === 'Status') {
+            displayValue = `<span class="badge" style="background-color: var(--status-progress-bg); color: var(--status-progress-text); padding: 2px 8px; border-radius: 12px; font-weight: 600; font-size: 11px;">${val}</span>`;
+          } else if (map.label.toLowerCase().includes('date') || map.label === 'Created') {
+            displayValue = formatDateOnly(val);
+          }
+
+          return `
+            <div class="detail-row">
+              <span class="detail-label">${map.label}</span>
+              <span class="detail-value">${displayValue}</span>
+            </div>
+          `;
         }).join('');
+
+        // Add any other fields not in mappings but not in ignore list
+        const handledKeys = displayMappings.flatMap(m => m.key);
+        const extraEntries = Object.entries(rowData)
+          .filter(([key, val]) => !ignoreKeys.includes(key) && !handledKeys.includes(key))
+          .filter(([key, val]) => val && String(val).trim() !== '' && String(val).trim() !== '-')
+          .map(([key, val]) => `
+            <div class="detail-row">
+              <span class="detail-label">${key.replace(/_/g, ' ')}</span>
+              <span class="detail-value">${val}</span>
+            </div>
+          `).join('');
+
+        detailsContent.innerHTML = `
+          <div class="form-list">
+            ${htmlEntries}
+            ${extraEntries}
+          </div>
+          <div id="modal-fabric-container" style="margin-top: 24px;"></div>
+        `;
+        
+        renderFabricDetails(rowData, 'modal-fabric-container');
         document.getElementById('details-modal').style.display = 'flex';
+      }
+
+      function openDetails(id) {
+        const rowData = requestsRows.find((r, i) => (r.id || r.C_Number || `REQ-${i + 1}`) === id);
+        openDetailsInternal(rowData);
       }
 
       function openRemarks(id) {
