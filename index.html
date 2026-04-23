@@ -1562,18 +1562,18 @@
         uploadBtns.forEach(btn => {
           btn.addEventListener('click', (e) => {
             const id = e.currentTarget.getAttribute('data-id');
-            const rowData = requestsRows.find((r, i) => (r.id || `REQ-${i + 1}`) === id);
+            const rowData = requestsRows.find((r, i) => (r.C_Number || r.id || `REQ-${i + 1}`) === id);
 
             if (rowData) {
-              document.getElementById('sel-detail-id').textContent = rowData.id || id;
-              document.getElementById('sel-detail-title').textContent = rowData.style || rowData.Style || '-';
-              document.getElementById('sel-detail-cust').textContent = rowData.customer || rowData.Customer || '-';
+              document.getElementById('sel-detail-id').textContent = rowData.C_Number || rowData.id || id;
+              document.getElementById('sel-detail-title').textContent = rowData.Customer_Ref || rowData.style || rowData.Style || '-';
+              document.getElementById('sel-detail-cust').textContent = rowData.Customer || rowData.customer || '-';
               document.getElementById('sel-detail-dept').textContent = rowData.Customer_Department || rowData.Cus_Dept || '-';
               document.getElementById('sel-detail-season').textContent = rowData.Season || rowData.TKL_Season || '-';
               document.getElementById('sel-detail-fabric').textContent = rowData['Fabric Add Ons'] || rowData.Main_Fabric || '-';
               // Field 'sel-detail-header' is now redundant if it was part of Fabric Add Ons, but we'll leave it as '-' or same as fabric
               document.getElementById('sel-detail-header').textContent = '-'; 
-              document.getElementById('sel-detail-pl').textContent = rowData.assignee || rowData.PL_Name || '-';
+              document.getElementById('sel-detail-pl').textContent = rowData.PL_Name || rowData.assignee || '-';
               document.getElementById('sel-detail-status').textContent = rowData.status || rowData.Status || '-';
               document.getElementById('sel-detail-created').textContent = formatDateOnly(rowData.createdDate || rowData.Created);
               document.getElementById('sel-detail-created-by').textContent = rowData.createdBy || rowData['Created By'] || '-';
