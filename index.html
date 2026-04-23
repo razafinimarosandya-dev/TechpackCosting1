@@ -1002,9 +1002,10 @@
             border-radius: 6px;
             padding: 8px 12px;
             display: grid;
-            grid-template-columns: 30px 1fr 1fr 1fr;
+            grid-template-columns: 30px 60px 1fr 100px 60px 80px;
             gap: 12px;
             align-items: center;
+            min-width: 700px;
           }
 
           .fabric-badge-opt {
@@ -1278,17 +1279,25 @@
         fabricRows.forEach((item, idx) => {
           const opt = item.opt || String.fromCharCode(65 + idx);
           const html = `
-            <div class="fabric-badge-item">
+            <div class="fabric-badge-item" style="grid-template-columns: 30px 100px 1fr 120px 1fr 80px 100px;">
               <div class="fabric-badge-opt">${opt}</div>
+              <div class="fabric-info-col">
+                <span class="fabric-info-label">Type</span>
+                <span class="fabric-info-val">${item.type || '-'}</span>
+              </div>
               <div class="fabric-info-col">
                 <span class="fabric-info-label">Fabric</span>
                 <span class="fabric-info-val" title="${item.fabric || '-'}">${item.fabric || '-'}</span>
               </div>
               <div class="fabric-info-col">
-                <span class="fabric-info-label">Gms / Comp</span>
-                <span class="fabric-info-val">${item.gms || '-'}${item.composition ? ' / ' + item.composition : ''}</span>
+                <span class="fabric-info-label">Gms/Comp</span>
+                <span class="fabric-info-val" title="${item.gms || '-'}${item.composition ? ' / ' + item.composition : ''}">${item.gms || '-'}${item.composition ? ' / ' + item.composition : ''}</span>
               </div>
               <div class="fabric-info-col">
+                <span class="fabric-info-label">Width</span>
+                <span class="fabric-info-val">${item.width || '-'}</span>
+              </div>
+              <div class="fabric-info-col" style="border-left: 1px solid #e2e8f0; padding-left: 10px;">
                 <span class="fabric-info-label">Header</span>
                 <span class="fabric-info-val" title="${item.header || '-'}">${item.header || '-'}</span>
               </div>
@@ -1710,49 +1719,49 @@
 
             if (rowData) {
               const detailsContent = document.getElementById('details-content');
-
-              const displayFields = [
-                { label: 'C_Number', value: rowData.C_Number || rowData.id },
-                { label: 'Customer Reference', value: rowData.Customer_Ref || rowData.style || rowData.Style },
-                { label: 'Customer Department', value: rowData.Customer_Department || rowData.Cus_Dept },
-                { label: 'Customer', value: rowData.Customer || rowData.customer },
-                { label: 'Season', value: rowData.Season || rowData.TKL_Season },
-                { label: 'PL Name', value: rowData.PL_Name || rowData.assignee },
-                { label: 'Status', value: rowData.Status || rowData.status },
-                { label: 'Created', value: formatDateOnly(rowData.Created || rowData.createdDate) },
-                { label: 'Created By', value: rowData['Created By'] || rowData.createdBy }
-              ];
-
-              detailsContent.innerHTML = displayFields.map(field => {
-                let displayValue = field.value || '-';
-                if (field.label === 'Status') {
-                  displayValue = `<span class="badge" style="background-color: var(--status-progress-bg); color: var(--status-progress-text); padding: 2px 8px; border-radius: 12px; font-weight: 600; font-size: 12px;">${displayValue}</span>`;
-                }
-
-                return `
-              <div style="display:flex; justify-content:space-between; border-bottom:1px solid #f3f4f6; padding: 10px 4px; align-items: flex-start; gap: 16px;">
-                <strong style="color: var(--text-muted); font-weight: 500; min-width: 120px;">${field.label}</strong>
-                <span style="color: var(--text-main); font-weight: 500; text-align: right; word-break: break-word;">${displayValue}</span>
-              </div>
-            `;
-              }).join('');
               
-              // Add Fabric Section at the bottom of standard details
+              // Internal keys to ignore
+              const ignoreKeys = ['_rowIndex', 'Fabric Add Ons', 'Fabric_Add_Ons', 'folderLink', 'Folder_Path'];
+              
+              const htmlEntries = Object.entries(rowData)
+                .filter(([key, val]) => {
+                  if (ignoreKeys.includes(key)) return false;
+                  if (!val || String(val).trim() === '-' || String(val).trim() === '') return false;
+                  return true;
+                })
+                .map(([key, val]) => {
+                  let displayValue = val;
+                  let displayLabel = key.replace(/_/g, ' ');
+
+                  if (key.toLowerCase().includes('status')) {
+                    displayValue = `<span class="badge" style="background-color: var(--status-progress-bg); color: var(--status-progress-text); padding: 2px 8px; border-radius: 12px; font-weight: 600; font-size: 12px;">${val}</span>`;
+                  } else if (key.toLowerCase().includes('date') || key.toLowerCase() === 'created') {
+                    displayValue = formatDateOnly(val);
+                  }
+
+                  return `
+                    <div style="display:flex; justify-content:space-between; border-bottom:1px solid #f3f4f6; padding: 10px 4px; align-items: flex-start; gap: 16px;">
+                      <strong style="color: var(--text-muted); font-weight: 500; min-width: 140px; text-transform: capitalize;">${displayLabel}</strong>
+                      <span style="color: var(--text-main); font-weight: 500; text-align: right; word-break: break-word;">${displayValue}</span>
+                    </div>
+                  `;
+                }).join('');
+
+              detailsContent.innerHTML = htmlEntries;
+              
+              // Add Fabric Section at the bottom
               detailsContent.insertAdjacentHTML('beforeend', `
-                <div style="margin-top: 16px; border-top: 1px dashed #e2e8f0; padding-top: 12px;">
-                  <strong style="display: block; color: var(--text-muted); font-size: 10px; text-transform: uppercase; margin-bottom: 8px;">Fabric Details</strong>
-                  <div id="modal-fabric-container"></div>
+                <div style="margin-top: 16px; border-top: 2px solid #2563eb; padding-top: 16px;">
+                  <strong style="display: block; color: var(--primary-color); font-size: 11px; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.1em;">Fabric Details (Complete)</strong>
+                  <div id="modal-fabric-container" style="overflow-x: auto; display: flex; flex-direction: column; gap: 8px;"></div>
                 </div>
               `);
               
-              const originalContainer = document.getElementById('sel-detail-fabric-container');
               const modalFabricContainer = document.getElementById('modal-fabric-container');
-              
-              // We reuse the logic by temporarily targeting the modal container
               const oldContainerId = 'sel-detail-fabric-container';
               modalFabricContainer.id = oldContainerId; 
               renderFabricDetails(rowData);
-              modalFabricContainer.id = 'modal-fabric-container'; // Restore ID
+              modalFabricContainer.id = 'modal-fabric-container'; 
 
               document.getElementById('details-modal').style.display = 'flex';
             }
