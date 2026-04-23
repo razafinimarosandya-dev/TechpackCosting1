@@ -1642,6 +1642,7 @@
       async function loadTableData() {
         tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">⏳ Loading data...</td></tr>';
         try {
+          console.log("[Data] Loading data from Apps Script...");
           const response = await fetch(APPS_SCRIPT_URL, {
             method: 'POST',
             body: JSON.stringify({
@@ -1652,13 +1653,15 @@
           const result = await response.json();
           if (result.status === 'success') {
             requestsRows = result.data;
+            window.requestsRows = requestsRows; // Expose for console debugging
+            console.log(`[Data] Loaded ${requestsRows.length} rows successfully.`);
             populateDatalists();
             renderTable();
           } else {
             throw new Error(result.message || 'Fetch failed');
           }
         } catch (error) {
-          console.error("Failed to load data:", error);
+          console.error("[Data] Load error:", error);
           tableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #dc2626; padding: 40px;">❌ Error: <b>${error.message}</b></td></tr>`;
         }
       }
@@ -1835,6 +1838,7 @@
 
       // Render HTML Table
       function renderTable() {
+        console.log(`[UI] Rendering table for tab: ${currentTab}`);
         updateStats();
         const tableContainer = document.getElementById('table-container');
         const calendarSection = document.getElementById('calendar-section');
@@ -2363,19 +2367,31 @@
 
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         document.getElementById('cal-month-title').textContent = `${monthNames[month]} ${year}`;
+        
+        console.log(`[Calendar] Rendering ${monthNames[month]} ${year}. Total rows: ${requestsRows.length}`);
 
         const firstDayIndex = new Date(year, month, 1).getDay();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
 
         let dayCounts = {};
         requestsRows.forEach(row => {
-          const st = String(row.status || '').toUpperCase().replace(/\s+/g, ' ').trim();
-          if (st !== 'AWAITING PATTERN') return;
-          const d = globalParseSheetDate(row.PL_Uploaded_Date);
-          if (d && !isNaN(d)) {
-            if (d.getFullYear() === year && d.getMonth() === month) {
-              let day = d.getDate();
-              dayCounts[day] = (dayCounts[day] || 0) + 1;
+          const st = String(row.status || row.Status || '').toUpperCase().trim();
+          
+          // Debug status
+          if (st === 'AWAITING PATTERN') {
+            const dateVal = row.PL_Uploaded_Date || row['PL_Uploaded_Date'] || '';
+            const d = globalParseSheetDate(dateVal);
+            
+            if (d && !isNaN(d)) {
+              console.log(`[Calendar] Match found! ID: ${row.id || row.C_Number}, Date: ${dateVal}, Parsed: ${d.toDateString()}`);
+              if (d.getFullYear() === year && d.getMonth() === month) {
+                let day = d.getDate();
+                dayCounts[day] = (dayCounts[day] || 0) + 1;
+              } else {
+                console.warn(`[Calendar] Date is in different month/year: ${d.getFullYear()}/${d.getMonth() + 1}`);
+              }
+            } else {
+              console.error(`[Calendar] Failed to parse date: "${dateVal}" for ID: ${row.id || row.C_Number}`);
             }
           }
         });
