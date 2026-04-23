@@ -1449,18 +1449,21 @@
     </div>
   </div>
 
-  <!-- Calendar Day Requests Modal -->
-  <div class="modal" id="calendar-day-modal"
-    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
-    <div class="card"
-      style="width: 400px; padding: 24px; background: white; border-radius: 8px; max-height: 80vh; overflow-y: auto;">
-      <h3 id="calendar-day-title" style="margin-bottom: 16px; border-bottom: 1px solid #ddd; padding-bottom: 8px;">
-        Requests for Date</h3>
-      <div id="calendar-day-content" style="line-height: 1.6; font-size: 14px; margin-bottom: 24px;">
-        <!-- Populated via JS -->
+  <!-- Calendar Day Requests Modal (Premium Structure) -->
+  <div class="modal-backdrop" id="calendar-day-modal">
+    <div class="modal-window" style="width: 500px;">
+      <div class="modal-header">
+        <h2 id="calendar-day-title">Requests for Date</h2>
+        <button class="close-btn" id="close-calendar-day-btn">&times;</button>
       </div>
-      <div style="display: flex; justify-content: flex-end;">
-        <button class="btn-secondary" id="close-calendar-day-btn" style="padding: 8px 16px;">Close</button>
+      <div class="modal-body" style="padding: 0;">
+        <div id="calendar-day-content">
+          <!-- Populated via JS -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="document.getElementById('calendar-day-modal').style.display='none';"
+          style="padding: 10px 20px; font-weight: 600;">Close</button>
       </div>
     </div>
   </div>
@@ -2386,23 +2389,30 @@
 
           if (dayCounts[i]) {
             let countBadge = document.createElement('div');
+            // Premium Badge Styling
             countBadge.style.marginTop = 'auto';
-            countBadge.style.backgroundColor = 'var(--primary-color)';
-            countBadge.style.color = '#fff';
-            countBadge.style.padding = '4px 8px';
-            countBadge.style.borderRadius = '4px';
-            countBadge.style.fontSize = '12px';
-            countBadge.style.fontWeight = 'bold';
+            countBadge.style.backgroundColor = '#eff6ff'; // Light blue bg
+            countBadge.style.color = '#1d4ed8'; // Dark blue text
+            countBadge.style.padding = '6px 4px';
+            countBadge.style.borderRadius = '8px';
+            countBadge.style.fontSize = '11px';
+            countBadge.style.fontWeight = '700';
             countBadge.style.textAlign = 'center';
             countBadge.style.cursor = 'pointer';
+            countBadge.style.border = '1px solid #dbeafe';
+            countBadge.style.transition = 'all 0.2s';
             countBadge.textContent = `${dayCounts[i]} Request${dayCounts[i] > 1 ? 's' : ''}`;
 
-            // Highlight on hover
-            countBadge.addEventListener('mouseenter', () => countBadge.style.opacity = '0.8');
-            countBadge.addEventListener('mouseleave', () => countBadge.style.opacity = '1');
+            countBadge.addEventListener('mouseenter', () => {
+              countBadge.style.backgroundColor = '#dbeafe';
+              countBadge.style.transform = 'translateY(-1px)';
+            });
+            countBadge.addEventListener('mouseleave', () => {
+              countBadge.style.backgroundColor = '#eff6ff';
+              countBadge.style.transform = 'translateY(0)';
+            });
 
             countBadge.addEventListener('click', () => {
-              // Find all requests for this year, month, day
               const dailyReqs = requestsRows.filter(r => {
                 const st = String(r.status || '').toUpperCase().replace(/\s+/g, ' ').trim();
                 if (st !== 'AWAITING PATTERN') return false;
@@ -2415,20 +2425,21 @@
               const content = document.getElementById('calendar-day-content');
 
               if (modal && title && content) {
-                title.textContent = `Requests on ${monthNames[month]} ${i}, ${year}`;
-
-                // Build a clean, styled list of Request IDs with a Details Button!
+                title.textContent = `${monthNames[month]} ${i}, ${year}`;
+                
                 content.innerHTML = dailyReqs.map(r => `
-                    <div style="padding: 10px 8px; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
-                       <div style="display:flex; flex-direction: column;">
-                           <span style="font-weight: 500; color: var(--text-main);">${r.id || 'Unknown ID'}</span>
-                           <span style="font-size: 12px; color: var(--text-muted);">${r.customer || 'No Customer'}</span>
+                    <div style="padding: 16px 20px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; transition: background 0.2s;">
+                       <div style="display:flex; flex-direction: column; gap: 2px;">
+                           <span style="font-weight: 700; color: #1e293b; font-size: 14px;">${r.id || 'Unknown ID'}</span>
+                           <span style="font-size: 12px; color: #64748b;">${r.customer || 'No Customer'}</span>
                        </div>
-                       <button class="btn-outline calendar-details-btn" data-id="${r.id}" style="padding: 6px 10px; font-size: 12px;">View Details</button>
+                       <button class="btn-outline calendar-details-btn" data-id="${r.id}" 
+                         style="padding: 6px 12px; font-size: 12px; border-radius: 6px; font-weight: 600; border-color: #cbd5e1; color: #475569;">
+                         Details
+                       </button>
                     </div>
                  `).join('');
 
-                // Bind those new buttons to the Details pane!
                 const calDetailsBtns = content.querySelectorAll('.calendar-details-btn');
                 calDetailsBtns.forEach(btn => {
                   btn.addEventListener('click', (e) => {
