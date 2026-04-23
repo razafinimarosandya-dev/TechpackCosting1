@@ -1620,9 +1620,12 @@
 
       const formatDateOnly = (dateStr) => {
         if (!dateStr || dateStr === '-') return '-';
-        if (typeof dateStr === 'string' && dateStr.includes('/')) return dateStr.split(' ')[0];
-        const d = globalParseSheetDate(dateStr) || new Date(dateStr);
-        if (!d || isNaN(d)) return String(dateStr).split(' ')[0] || '-';
+        const d = globalParseSheetDate(dateStr);
+        if (!d || isNaN(d)) {
+          // If parse fails but it looks like a date string, try to clean it
+          if (typeof dateStr === 'string' && dateStr.includes('/')) return dateStr.split(' ')[0];
+          return String(dateStr);
+        }
         const day = String(d.getDate()).padStart(2, '0');
         const month = String(d.getMonth() + 1).padStart(2, '0');
         const year = d.getFullYear();
@@ -2346,28 +2349,25 @@
         const listContainer = document.createElement('div');
         listContainer.className = "form-list";
 
-        // Internal/Technical keys to exclude from display
-        const excludeKeys = ['_rowIndex', 'Fabric Add Ons', 'Fabric_Add_Ons', 'folderLink', 'avatar', 'statusClass', 'id', 'Style', 'Main_Fabric', 'Fabric_Header'];
+        // Internal/Technical keys to exclude from display loop (will handle Folder_Path later)
+        const excludeKeys = ['_rowIndex', 'Fabric Add Ons', 'Fabric_Add_Ons', 'folderLink', 'avatar', 'statusClass', 'id', 'Style', 'Main_Fabric', 'Fabric_Header', 'Folder_Path', 'Folder Path'];
 
         Object.keys(rowData).forEach(key => {
           if (excludeKeys.includes(key)) return;
           
           let val = rowData[key];
-          
-          // HIDE IF EMPTY
           if (val === undefined || val === null || String(val).trim() === "" || String(val).trim() === "-" || String(val).trim() === "N/A") return;
 
           const div = document.createElement('div');
           div.className = "detail-row";
 
-          // Beautify Header/Label
           let labelName = key.replace(/_/g, ' ');
           if (labelName.toLowerCase() === "c number") labelName = "C Number";
           
           let displayVal = val;
           if (key.toLowerCase().includes('status')) {
             displayVal = `<span class="badge" style="background-color: var(--status-progress-bg); color: var(--status-progress-text); padding: 2px 8px; border-radius: 12px; font-weight: 600; font-size: 11px;">${val}</span>`;
-          } else if ((key.toLowerCase().includes('date') || key.toLowerCase() === 'created') && !isNaN(Date.parse(val)) && String(val).includes('/')) {
+          } else if (key.toLowerCase().includes('date') || key.toLowerCase() === 'created') {
             displayVal = formatDateOnly(val);
           } else if (String(val).startsWith('http')) {
             displayVal = `<a href="${val}" target="_blank" style="color: #3b82f6; font-weight: 700; text-decoration: underline;">Open Folder</a>`;
@@ -2379,6 +2379,25 @@
           `;
           listContainer.appendChild(div);
         });
+
+        // 3. Append Folder Path at the VERY END
+        const folderKey = Object.keys(rowData).find(k => k === 'Folder_Path' || k === 'Folder Path');
+        if (folderKey && rowData[folderKey]) {
+          const folderVal = rowData[folderKey];
+          if (folderVal && String(folderVal).trim() !== "" && String(folderVal).trim() !== "-") {
+            const div = document.createElement('div');
+            div.className = "detail-row";
+            let displayVal = folderVal;
+            if (String(folderVal).startsWith('http')) {
+              displayVal = `<a href="${folderVal}" target="_blank" style="color: #3b82f6; font-weight: 700; text-decoration: underline;">Open Folder</a>`;
+            }
+            div.innerHTML = `
+              <span class="detail-label">Folder Path</span>
+              <span class="detail-value">${displayVal}</span>
+            `;
+            listContainer.appendChild(div);
+          }
+        }
 
         detailsContent.appendChild(listContainer);
         document.getElementById('details-modal').style.display = 'flex';
