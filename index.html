@@ -193,44 +193,99 @@
     color: var(--text-main);
   }
 
-  .nav-right {
+  /* User Profile Bubble */
+  .user-profile {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
+    padding: 4px 8px;
+    border-radius: 20px;
+    transition: var(--transition);
+    cursor: pointer;
   }
 
-  .icon-btn {
-    width: 36px;
-    height: 36px;
+  .user-profile:hover {
+    background: #f3f4f6;
+  }
+
+  .user-avatar {
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
+    background: var(--primary-color);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-muted);
-    background-color: transparent;
-    transition: var(--transition);
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    overflow: hidden;
   }
 
-  .icon-btn:hover {
-    background-color: var(--bg-color);
-    color: var(--text-main);
-    transform: scale(1.05);
-  }
-
-  .avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
+  .user-avatar img {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
-    border: 2px solid white;
-    box-shadow: var(--shadow-sm);
-    cursor: pointer;
+  }
+
+  .user-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .user-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-main);
+    line-height: 1.2;
+  }
+
+  .user-role {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .profile-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    width: 200px;
+    background: white;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+    display: none;
+    flex-direction: column;
+    padding: 8px;
+    z-index: 100;
+  }
+
+  .profile-dropdown.active {
+    display: flex;
+  }
+
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--text-main);
     transition: var(--transition);
   }
 
-  .avatar:hover {
-    transform: scale(1.05);
-    box-shadow: var(--shadow-md);
+  .dropdown-item:hover {
+    background: #f3f4f6;
+  }
+
+  .logout-btn {
+    color: #dc2626;
+    border-top: 1px solid var(--border-color);
+    margin-top: 4px;
+    padding-top: 12px;
   }
 
   /* Main Content */
@@ -830,7 +885,7 @@
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
-          <input type="text" id="search-input" placeholder="Search Request ID or Customer..." />
+          <input type="text" id="search-input" placeholder="Search C Number or Customer..." />
         </div>
         <div class="nav-links">
           <a href="https://costing-home.vercel.app/">Home</a>
@@ -840,14 +895,30 @@
         </div>
       </div>
       <div class="nav-right">
-        <button class="icon-btn">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-          </svg>
-        </button>
-        <img class="avatar" src="https://i.pravatar.cc/150?u=a042581f4e29026704f" alt="User Profile" />
+        <div class="user-profile" id="user-profile-bubble">
+          <div class="user-avatar" id="user-avatar-initials">?</div>
+          <div class="user-info">
+            <span class="user-name" id="user-display-name">Guest User</span>
+            <span class="user-role">Merchandiser</span>
+          </div>
+          <div class="profile-dropdown" id="profile-dropdown">
+            <div class="dropdown-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              My Profile
+            </div>
+            <div class="dropdown-item logout-btn" id="logout-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
+              Logout
+            </div>
+          </div>
+        </div>
       </div>
     </nav>
 
@@ -865,7 +936,7 @@
             <div
               style="display: flex; align-items: center; gap: 6px; background: #ecfdf5; color: #059669; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid #d1fae5;">
               <div style="width: 6px; height: 6px; background: #10b981; border-radius: 50%;"></div>
-              Upload Action: <span id="stat-upload-count-pill" style="font-weight: 800;">0</span>
+              Awaiting Techpack: <span id="stat-upload-count-pill" style="font-weight: 800;">0</span>
             </div>
             <div
               style="display: flex; align-items: center; gap: 6px; background: #f0fdf4; color: #166534; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; border: 1px solid #bbf7d0;">
@@ -912,11 +983,11 @@
           <table>
             <thead>
               <tr>
-                <th>Request ID</th>
-                <th>Style</th>
+                <th>C Number</th>
+                <th>Customer Ref</th>
                 <th>Customer</th>
-                <th>Assigned PL</th>
-                <th>Costing Ready Date</th>
+                <th>PL</th>
+                <th>Costing Expected Date</th>
                 <th>Status</th>
                 <th id="th-overdue-leadtime">PL Overdue</th>
                 <th style="text-align: center;">Action</th>
@@ -963,11 +1034,11 @@
             style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; background: #f8fafc; padding: 24px; border-radius: 12px; border: 1px solid #e2e8f0;">
 
             <div class="detail-item">
-              <label>Request ID</label>
+              <label>C_Number</label>
               <div id="sel-detail-id">-</div>
             </div>
             <div class="detail-item">
-              <label>Title</label>
+              <label>Customer Ref</label>
               <div id="sel-detail-title">-</div>
             </div>
             <div class="detail-item">
@@ -1006,10 +1077,6 @@
               <label>Created By</label>
               <div id="sel-detail-created-by">-</div>
             </div>
-            <div class="detail-item">
-              <label>Remarks</label>
-              <div id="sel-detail-remarks">-</div>
-            </div>
             <div class="detail-item"
               style="grid-column: 1 / -1; border-top: 1px solid #e2e8f0; padding-top: 12px; margin-top: 4px;">
               <label>Folder Path</label>
@@ -1039,7 +1106,7 @@
 
         <div style="max-width: 800px; margin: 0 auto 16px auto;">
           <label for="upload-remark-input"
-            style="display: block; font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px;">REMARK PL</label>
+            style="display: block; font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px;">REMARK</label>
           <textarea id="upload-remark-input" placeholder="Type your remark here..."
             style="width: 100%; min-height: 90px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; outline: none; font-family: inherit; resize: vertical;"></textarea>
         </div>
@@ -1086,17 +1153,17 @@
       <h3 style="margin-bottom: 20px;">Advanced Filter</h3>
       <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">
         <div>
-          <label style="display: block; font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px;">REQUEST
-            ID</label>
+          <label style="display: block; font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px;">C
+            NUMBER</label>
           <input type="text" id="filter-id" list="id-list-tp" class="btn-outline"
-            style="width: 100%; text-align: left; padding: 10px;" placeholder="Search or select ID..." />
+            style="width: 100%; text-align: left; padding: 10px;" placeholder="Search or select C Number..." />
           <datalist id="id-list-tp"></datalist>
         </div>
         <div>
-          <label style="display: block; font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px;">STYLE
-            NAME</label>
+          <label style="display: block; font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px;">CUSTOMER
+            REFERENCE</label>
           <input type="text" id="filter-style" list="style-list-tp" class="btn-outline"
-            style="width: 100%; text-align: left; padding: 10px;" placeholder="Search or select Style..." />
+            style="width: 100%; text-align: left; padding: 10px;" placeholder="Search or select Customer Reference..." />
           <datalist id="style-list-tp"></datalist>
         </div>
         <div>
@@ -1107,8 +1174,7 @@
           <datalist id="cust-list-tp"></datalist>
         </div>
         <div>
-          <label style="display: block; font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px;">PL NAME
-            / PM NAME</label>
+          <label style="display: block; font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px;">PL Name</label>
           <input type="text" id="filter-pl" list="pl-list-tp" class="btn-outline"
             style="width: 100%; text-align: left; padding: 10px;" placeholder="Search or select PL..." />
           <datalist id="pl-list-tp"></datalist>
@@ -1165,7 +1231,7 @@
     style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center;">
     <div class="card" style="width: 400px; padding: 24px; background: white; border-radius: 8px;">
       <h3 style="margin-bottom: 16px;">Production Remarks</h3>
-      <p style="margin-bottom: 16px; font-size: 14px; color: #6b7280;">Request ID: <strong id="remarks-req-id"
+      <p style="margin-bottom: 16px; font-size: 14px; color: #6b7280;">C Number: <strong id="remarks-req-id"
           style="color: #1f2937;">-</strong></p>
 
       <div style="margin-bottom: 24px;">
@@ -1229,8 +1295,61 @@
       //        Paste your Apps Script Web App URL below (no quotes issues).
       // ============================================================
       const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSdyx3uNKZPhbhwg_eIc_VmRTvUNF8-Q5z9hunbr7seSuz2nNdO-awDI8qserEQHkr/exec';
+      const APPS_SCRIPT_URL = GOOGLE_SCRIPT_URL; // Alias for consistency
 
       // --- Tab Interactivity Removed ---
+
+      // --- Session & Auth ---
+      let currentUser = null;
+
+      function consumeUrlSession() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const userJson = urlParams.get('user');
+        if (userJson) {
+          try {
+            currentUser = JSON.parse(decodeURIComponent(userJson));
+            localStorage.setItem('garment_user', JSON.stringify(currentUser));
+            window.history.replaceState({}, document.title, window.location.pathname);
+          } catch (e) {
+            console.error("URL user parse error", e);
+          }
+        } else {
+          const stored = localStorage.getItem('garment_user');
+          if (stored) currentUser = JSON.parse(stored);
+        }
+      }
+
+      function setupUserSession() {
+        consumeUrlSession();
+        if (!currentUser) {
+          window.location.href = 'login.html';
+          return;
+        }
+        const nameEl = document.getElementById('user-display-name');
+        const initialsEl = document.getElementById('user-avatar-initials');
+        if (nameEl) nameEl.textContent = currentUser.name || "User";
+        if (initialsEl) initialsEl.textContent = (currentUser.name || "U").charAt(0).toUpperCase();
+
+        const profileBubble = document.getElementById('user-profile-bubble');
+        const dropdown = document.getElementById('profile-dropdown');
+        if (profileBubble) {
+          profileBubble.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('active');
+          });
+        }
+        document.addEventListener('click', () => dropdown.classList.remove('active'));
+
+        const logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) {
+          logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('garment_user');
+            window.location.href = 'login.html';
+          });
+        }
+      }
+
+      setupUserSession();
 
       // --- Dynamic Table Data (from Google Sheets) ---
       let requestsRows = [];
@@ -1246,26 +1365,35 @@
 
       // Load Data from Google Sheets API
       async function loadTableData() {
-        tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">⏳ Loading data from Google Sheets...</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">⏳ Loading data...</td></tr>';
         try {
-          const response = await fetch(`${GOOGLE_SCRIPT_URL}?t=${new Date().getTime()}`);
-          if (!response.ok) throw new Error(`Network response was not ok: ${response.status}`);
-          const data = await response.json();
-          requestsRows = data;
-          populateDatalists();
-          renderTable();
+          const response = await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+              action: 'get_all',
+              statusFilter: ['Awaiting Techpack', 'Awaiting Pattern']
+            })
+          });
+          const result = await response.json();
+          if (result.status === 'success') {
+            requestsRows = result.data;
+            populateDatalists();
+            renderTable();
+          } else {
+            throw new Error(result.message || 'Fetch failed');
+          }
         } catch (error) {
-          console.error("Failed to load data from Google Sheets:", error);
-          tableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #dc2626; padding: 40px;">❌ Failed to load data: <b>${error.message}</b></td></tr>`;
+          console.error("Failed to load data:", error);
+          tableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #dc2626; padding: 40px;">❌ Error: <b>${error.message}</b></td></tr>`;
         }
       }
 
       function populateDatalists() {
-        const ids = [...new Set(requestsRows.map(r => r.id).filter(Boolean))];
-        const styles = [...new Set(requestsRows.map(r => r.style || r.Style).filter(Boolean))];
-        const pls = [...new Set(requestsRows.map(r => r.assignee || r.PL_Name).filter(Boolean))];
-        const customers = [...new Set(requestsRows.map(r => r.customer || r.Customer).filter(Boolean))];
-        const statuses = [...new Set(requestsRows.map(r => r.status || r.Status).filter(Boolean))];
+        const ids = [...new Set(requestsRows.map(r => r.C_Number || r.id).filter(Boolean))];
+        const styles = [...new Set(requestsRows.map(r => r.Customer_Ref || r.style || r.Style).filter(Boolean))];
+        const pls = [...new Set(requestsRows.map(r => r.PL_Name || r.assignee).filter(Boolean))];
+        const customers = [...new Set(requestsRows.map(r => r.Customer || r.customer).filter(Boolean))];
+        const statuses = [...new Set(requestsRows.map(r => r.Status || r.status).filter(Boolean))];
 
         const fills = [
           { id: 'id-list-tp', vals: ids },
@@ -1354,12 +1482,12 @@
 
       function updateStats() {
         const uploadCount = requestsRows.filter(row => {
-          const statusUpper = (row.status || '').toUpperCase().trim();
+          const statusUpper = (row.Status || row.status || '').toUpperCase().trim();
           return statusUpper.includes('TECHPACK') || statusUpper.includes('TECKPACK');
         }).length;
 
         const completeCount = requestsRows.filter(row => {
-          const statusUpper = (row.status || '').toUpperCase().trim();
+          const statusUpper = (row.Status || row.status || '').toUpperCase().trim();
           return statusUpper === 'AWAITING PATTERN';
         }).length;
 
@@ -1372,7 +1500,7 @@
 
       function getFilteredRowsForCurrentTab() {
         return requestsRows.filter(row => {
-          const statusUpper = (row.status || '').toUpperCase().trim();
+          const statusUpper = (row.Status || row.status || '').toUpperCase().trim();
           const isAwaitingTechpack = statusUpper.includes('TECHPACK') || statusUpper.includes('TECKPACK');
           const isAwaitingPattern = statusUpper === 'AWAITING PATTERN';
 
@@ -1381,16 +1509,16 @@
 
           if (searchText) {
             const q = searchText.toLowerCase();
-            if (!(row.id || '').toLowerCase().includes(q) &&
-              !(row.style || row.Style || '').toLowerCase().includes(q) &&
-              !(row.customer || row.Customer || '').toLowerCase().includes(q)) return false;
+            if (!(row.C_Number || row.id || '').toLowerCase().includes(q) &&
+              !(row.Customer_Ref || row.style || row.Style || '').toLowerCase().includes(q) &&
+              !(row.Customer || row.customer || '').toLowerCase().includes(q)) return false;
           }
 
-          if (advFilter.id && !(row.id || '').toLowerCase().includes(advFilter.id.toLowerCase())) return false;
-          if (advFilter.style && !(row.style || row.Style || '').toLowerCase().includes(advFilter.style.toLowerCase())) return false;
-          if (advFilter.pl && !(row.assignee || row.PL_Name || '').toLowerCase().includes(advFilter.pl.toLowerCase())) return false;
-          if (advFilter.customer && !(row.customer || row.Customer || '').toLowerCase().includes(advFilter.customer.toLowerCase())) return false;
-          if (advFilter.status && !(row.status || row.Status || '').toLowerCase().includes(advFilter.status.toLowerCase())) return false;
+          if (advFilter.id && !(row.C_Number || row.id || '').toLowerCase().includes(advFilter.id.toLowerCase())) return false;
+          if (advFilter.style && !(row.Customer_Ref || row.style || row.Style || '').toLowerCase().includes(advFilter.style.toLowerCase())) return false;
+          if (advFilter.pl && !(row.PL_Name || row.assignee || '').toLowerCase().includes(advFilter.pl.toLowerCase())) return false;
+          if (advFilter.customer && !(row.Customer || row.customer || '').toLowerCase().includes(advFilter.customer.toLowerCase())) return false;
+          if (advFilter.status && !(row.Status || row.status || '').toLowerCase().includes(advFilter.status.toLowerCase())) return false;
 
           return true;
         });
@@ -1482,7 +1610,7 @@
         }
 
         filteredRows.forEach((row, index) => {
-          const safeId = row.id || `REQ-${index + 1}`;
+          const safeId = row.C_Number || row.id || `REQ-${index + 1}`;
 
           let colValue = '-';
           let actionButtons = '';
@@ -1510,7 +1638,7 @@
 
           if (currentTab === 'Uploads') {
             // Calculate PL Overdue (Today - Created Date)
-            const created = parseSheetDate(row.createdDate);
+            const created = parseSheetDate(row.Created || row.createdDate);
             if (created && !isNaN(created)) {
               const today = new Date();
               // Multiply by 1000 ms * 60 s * 60 m = hours
@@ -1537,7 +1665,7 @@
         `;
           } else {
             // Calculate PL_Leadtime (Uploaded Date - Created Date) for Completed
-            const created = parseSheetDate(row.createdDate);
+            const created = parseSheetDate(row.Created || row.createdDate);
             const uploaded = parseSheetDate(row.PL_Uploaded_Date);
 
             if (created && !isNaN(created) && uploaded && !isNaN(uploaded)) {
@@ -1552,8 +1680,9 @@
             }
 
             actionButtons = `
-          <div style="display: flex; justify-content: center; align-items: center;">
-            <button class="btn-outline details-btn" data-id="${safeId}" style="padding: 6px 12px; font-size: 12px;">Details</button>
+          <div style="display: flex; justify-content: center; align-items: center; gap: 8px;">
+            <button class="btn-outline details-btn" data-id="${safeId}" style="padding: 6px 10px; font-size: 12px;">Details</button>
+            <button class="btn-outline remarks-btn" data-id="${safeId}" style="padding: 6px 10px; font-size: 12px;">Remarks</button>
           </div>
         `;
           }
@@ -1561,18 +1690,18 @@
           const tr = document.createElement('tr');
           tr.innerHTML = `
         <td class="req-id">${safeId}</td>
-        <td class="style-name">${row.style || '-'}</td>
-        <td class="customer-name">${row.customer || '-'}</td>
+        <td class="style-name">${row.Customer_Ref || row.style || '-'}</td>
+        <td class="customer-name">${row.Customer || row.customer || '-'}</td>
         <td>
           <div class="assignee">
-            <img class="assignee-avatar" src="${row.avatar || 'https://i.pravatar.cc/150?u=' + encodeURIComponent(safeId)}" alt="${row.assignee || 'User'}" />
-            ${row.assignee || 'Unassigned'}
+            <img class="assignee-avatar" src="${row.avatar || 'https://i.pravatar.cc/150?u=' + encodeURIComponent(safeId)}" alt="${row.PL_Name || row.assignee || 'User'}" />
+            ${row.PL_Name || row.assignee || 'Unassigned'}
           </div>
         </td>
-        <td>${formatToDDMMYYYY(row.due)}</td>
+        <td>${formatToDDMMYYYY(row.Costing_Expected_Date || row.due)}</td>
         <td>
           <span class="status-badge ${row.statusClass || 'status-pending'}">
-            ${row.status || 'PENDING'}
+            ${row.Status || row.status || 'PENDING'}
           </span>
         </td>
         <td>${colValue}</td>
@@ -1602,11 +1731,9 @@
               document.getElementById('sel-detail-status').textContent = rowData.status || rowData.Status || '-';
               document.getElementById('sel-detail-created').textContent = formatDateOnly(rowData.createdDate || rowData.Created);
               document.getElementById('sel-detail-created-by').textContent = rowData.createdBy || rowData['Created By'] || '-';
-              document.getElementById('sel-detail-remarks').textContent = rowData.remarks || rowData.Remarks || '-';
-
               const uploadRemarkInput = document.getElementById('upload-remark-input');
               if (uploadRemarkInput) {
-                uploadRemarkInput.value = '';
+                uploadRemarkInput.value = rowData.remarks || rowData.Remarks || '';
               }
 
               const folderValue = rowData.folderLink || rowData.Folder_Path || '-';
@@ -1633,36 +1760,29 @@
         detailsBtns.forEach(btn => {
           btn.addEventListener('click', (e) => {
             const id = e.currentTarget.getAttribute('data-id');
-            const rowData = requestsRows.find((r, i) => (r.id || `REQ-${i + 1}`) === id);
+            const rowData = requestsRows.find((r, i) => (r.C_Number || r.id || `REQ-${i + 1}`) === id);
 
             if (rowData) {
               const detailsContent = document.getElementById('details-content');
 
-              // Map to present exactly what the user requested, in a beautiful layout
               const displayFields = [
-                { label: 'Request ID', value: rowData.id },
+                { label: 'C_Number', value: rowData.C_Number || rowData.id },
+                { label: 'Customer Reference', value: rowData.Customer_Ref || rowData.style || rowData.Style },
+                { label: 'Customer Type', value: rowData.Customer_Type || rowData.customerType || rowData.Cus_Dept },
                 { label: 'Customer', value: rowData.Customer || rowData.customer },
-                { label: 'Cus Dept', value: rowData.Cus_Dept || rowData.cusDept },
-                { label: 'TKL Season', value: rowData.TKL_Season || rowData.tklSeason },
+                { label: 'TKL Season', value: rowData.Season || rowData.TKL_Season || rowData.tklSeason },
                 { label: 'Main Fabric', value: rowData.Main_Fabric || rowData.mainFabric },
                 { label: 'Fabric Header', value: rowData.Fabric_Header || rowData.fabricHeader },
                 { label: 'PL Name', value: rowData.PL_Name || rowData.assignee },
                 { label: 'Status', value: rowData.Status || rowData.status },
                 { label: 'Created', value: formatDateOnly(rowData.Created || rowData.createdDate) },
-                { label: 'Created By', value: rowData['Created By'] || rowData.createdBy },
-                { label: 'Remarks', value: rowData.remarks || rowData.Remarks || '' },
-                { label: 'Remarks Techpack', value: rowData.Remarks_Techpack || rowData.remarks_techpack || '' },
-                { label: 'Folder Path', value: rowData.folderLink || rowData.Folder_Path || '' }
+                { label: 'Created By', value: rowData['Created By'] || rowData.createdBy }
               ];
 
               detailsContent.innerHTML = displayFields.map(field => {
-                // Apply special styling to the folder link
                 let displayValue = field.value || '-';
                 if (field.label === 'Status') {
                   displayValue = `<span class="badge" style="background-color: var(--status-progress-bg); color: var(--status-progress-text); padding: 2px 8px; border-radius: 12px; font-weight: 600; font-size: 12px;">${displayValue}</span>`;
-                }
-                if (field.label === 'Folder Path' && displayValue !== '-' && /^https?:\/\//i.test(displayValue)) {
-                  displayValue = `<a href="${displayValue}" target="_blank" style="color: var(--primary-color); text-decoration: underline; font-weight: 600;">Open Folder</a>`;
                 }
 
                 return `
@@ -1682,9 +1802,9 @@
         remarksBtns.forEach(btn => {
           btn.addEventListener('click', (e) => {
             const id = e.currentTarget.getAttribute('data-id');
-            const row = requestsRows.find(r => r.id === id);
+            const row = requestsRows.find(r => (r.C_Number || r.id) === id);
             document.getElementById('remarks-req-id').textContent = id;
-            document.getElementById('remarks-input').value = row ? (row.remarks || row.Remarks || '') : '';
+            document.getElementById('remarks-input').value = row ? (row['Remarks Techpack'] || row.remarks_techpack || row.remarks || '') : '';
             document.getElementById('remarks-modal').style.display = 'flex';
           });
         });
@@ -1734,15 +1854,15 @@
       const previewEmailBody = document.getElementById('preview-email-body');
       const previewUploadRemark = document.getElementById('preview-upload-remark');
 
-      if (submitBtn) {
-        submitBtn.addEventListener('click', async () => {
+      if (submitBtn && emailModal) {
+        submitBtn.addEventListener('click', () => {
           const activeReqId = document.getElementById('sel-detail-id').textContent;
-          if (!activeReqId || activeReqId === '-' || activeReqId === 'Request ID: -') {
+          if (!activeReqId || activeReqId === '-' || activeReqId === 'C Number: -' || activeReqId === 'Request ID: -') {
             alert("No active request selected!");
             return;
           }
 
-          const currentId = activeReqId.replace('Request ID: ', '').trim();
+          const currentId = activeReqId.replace('C Number: ', '').replace('Request ID: ', '').trim();
           const currentRef = document.getElementById('sel-detail-title').textContent || '-';
           const currentCustomer = document.getElementById('sel-detail-cust').textContent || '-';
           const currentPL = (document.getElementById('sel-detail-pl').textContent || '').replace('PL: ', '').trim();
@@ -1751,76 +1871,33 @@
           const rowData = requestsRows.find((r, i) => (r.id || `REQ-${i + 1}`) === currentId);
           const folderPath = rowData ? (rowData.folderLink || rowData.Folder_Path || rowData.folder_path || '').trim() : '';
 
-          // Open folder path on submit
+          // Open folder path on submit while preserving the existing submit flow.
           if (folderPath && folderPath !== '-' && /^https?:\/\//i.test(folderPath)) {
             window.open(folderPath, '_blank');
           }
 
-          const originalText = submitBtn.textContent;
-          submitBtn.textContent = "Saving to Database...";
-          submitBtn.style.opacity = '0.7';
-          submitBtn.style.pointerEvents = 'none';
-
-          const remarkText = uploadRemarkInput ? uploadRemarkInput.value.trim() : (rowData ? (rowData.remarks || rowData.Remarks || '') : '');
-
-          const prevStatus = rowData ? (rowData.Status || rowData.status || 'Awaiting Techpack') : 'Awaiting Techpack';
-          const nextStatus = 'Awaiting Pattern';
-          const nowD = new Date();
-          const uploadDateStr = `${nowD.getFullYear()}-${String(nowD.getMonth() + 1).padStart(2, '0')}-${String(nowD.getDate()).padStart(2, '0')}`;
-
-          const payload = {
-            requestId: currentId,
-            timestamp: new Date().toISOString(),
-            status: nextStatus,
-            PL_Uploaded_Date: getFullDateTime(),
-            remarksTechpack: remarkText,
-            remarks: remarkText,
-            storageAreaRemarks: remarkText,
-            Storage_Area_Remarks: remarkText,
-            // Automatically handled by backend based on PL Name if empty
-            emailTo: '',
-            emailSubject: `The request ${currentId} has been updated.`,
-            emailBody: `Hello,\n\nThe request ${currentId} has been updated.\n\nChanges:\n- Status: '${prevStatus}' -> '${nextStatus}'\n- Tehpack_uplaodDate: '' -> '${uploadDateStr}'\n\nLink : ${appLink}\nBest regards,\nGarmentCost System.`,
-            plAlias: currentPL || "Techpack System",
-            currentRef: currentRef,
-            currentCustomer: currentCustomer,
-            appLink: appLink
-          };
-
-          try {
-            await fetch(GOOGLE_SCRIPT_URL, {
-              method: 'POST',
-              mode: 'no-cors',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload)
-            });
-
-            if (uploadRemarkInput) uploadRemarkInput.value = '';
-            const detailsModal = document.getElementById('details-modal');
-            if (detailsModal) detailsModal.style.display = 'none';
-            if (activeRequestBanner) activeRequestBanner.style.display = 'none';
-            if (uploadConfigSection) uploadConfigSection.style.display = 'none';
-
-            // Refresh full dataset
-            await loadTableData();
-
-            // Ensure user sees the updated list immediately.
-            currentTab = 'Completed';
-            if (navCompleted && navUploads && navCalendar) {
-              navCompleted.classList.add('active');
-              navUploads.classList.remove('active');
-              navCalendar.classList.remove('active');
-            }
-            renderTable();
-
-          } catch (error) {
-            console.error("Error saving data:", error);
-            alert("❌ Failed to save data. See console for details.");
-          } finally {
-            submitBtn.textContent = originalText;
-            submitBtn.style.opacity = '1';
-            submitBtn.style.pointerEvents = 'auto';
+          previewEmailTo.value = "YTeeluck@tropicknits.com";
+          previewEmailSubject.value = `Techpack Uploaded: ${currentId}`;
+          previewEmailBody.value = `Hi,\n\nTechpack has been uploaded.\n\nRef: ${currentRef}\nC_Number: ${currentId}\nCustomer: ${currentCustomer}\n\nApp link: ${appLink}\n\nRegards,\n\n${currentPL}`;
+          if (previewUploadRemark) {
+            previewUploadRemark.value = uploadRemarkInput
+              ? uploadRemarkInput.value.trim()
+              : (rowData ? (rowData.remarks || rowData.Remarks || '') : '');
           }
+          emailModal.style.display = 'flex';
+          if (activeRequestBanner) activeRequestBanner.style.display = 'none';
+          if (uploadConfigSection) uploadConfigSection.style.display = 'none';
+          const detailsModal = document.getElementById('details-modal');
+          if (detailsModal) detailsModal.style.display = 'none';
+
+          // Return user to Completed view after submit is clicked.
+          currentTab = 'Completed';
+          if (navCompleted && navUploads && navCalendar) {
+            navCompleted.classList.add('active');
+            navUploads.classList.remove('active');
+            navCalendar.classList.remove('active');
+          }
+          renderTable();
         });
       }
 
@@ -1875,6 +1952,82 @@
         cancelEmailBtn.addEventListener('click', () => emailModal.style.display = 'none');
       }
 
+      if (confirmUploadBtn) {
+        confirmUploadBtn.addEventListener('click', async () => {
+          const activeReqId = document.getElementById('sel-detail-id').textContent;
+          const currentId = activeReqId.replace('C Number: ', '').replace('Request ID: ', '').trim();
+          const currentRef = document.getElementById('sel-detail-title').textContent || '-';
+          const currentCustomer = document.getElementById('sel-detail-cust').textContent || '-';
+          const currentPL = (document.getElementById('sel-detail-pl').textContent || '').replace('PL: ', '').trim();
+
+          const originalText = confirmUploadBtn.textContent;
+          confirmUploadBtn.textContent = "Saving to Database...";
+          confirmUploadBtn.style.opacity = '0.7';
+          confirmUploadBtn.style.pointerEvents = 'none';
+
+          const rowData = requestsRows.find((r, i) => (r.C_Number || r.id || `REQ-${i + 1}`) === currentId);
+          if (!rowData || !rowData._rowIndex) {
+            alert("Row index not found. Try refreshing data.");
+            confirmUploadBtn.textContent = originalText;
+            confirmUploadBtn.style.opacity = '1';
+            confirmUploadBtn.style.pointerEvents = 'auto';
+            return;
+          }
+
+          const payload = {
+            action: 'update',
+            rowIndex: rowData._rowIndex,
+            updates: {
+              'Status': 'Awaiting Pattern',
+              'PL_Uploaded_Date': getFullDateTime(),
+              'Remarks Techpack': previewUploadRemark ? previewUploadRemark.value.trim() : ''
+            },
+            emailParams: {
+              to: previewEmailTo.value.trim(),
+              subject: previewEmailSubject.value.trim(),
+              body: previewEmailBody.value
+            }
+          };
+
+          try {
+            const response = await fetch(APPS_SCRIPT_URL, {
+              method: 'POST',
+              body: JSON.stringify(payload)
+            });
+            const result = await response.json();
+            if (result.status !== 'success') throw new Error(result.message || "Update failed");
+
+            const uploadRemarkInput = document.getElementById('upload-remark-input');
+            if (uploadRemarkInput) uploadRemarkInput.value = '';
+            if (previewUploadRemark) previewUploadRemark.value = '';
+            emailModal.style.display = 'none';
+            const detailsModal = document.getElementById('details-modal');
+            if (detailsModal) detailsModal.style.display = 'none';
+            if (activeRequestBanner) activeRequestBanner.style.display = 'none';
+            if (uploadConfigSection) uploadConfigSection.style.display = 'none';
+
+            // Refresh full dataset so all counters/tabs are consistent.
+            await loadTableData();
+
+            // Ensure user sees the updated list immediately.
+            currentTab = 'Completed';
+            if (navCompleted && navUploads && navCalendar) {
+              navCompleted.classList.add('active');
+              navUploads.classList.remove('active');
+              navCalendar.classList.remove('active');
+            }
+            renderTable();
+
+          } catch (error) {
+            console.error("Error saving data:", error);
+            alert("❌ Failed to save data. See console for details.");
+          } finally {
+            confirmUploadBtn.textContent = originalText;
+            confirmUploadBtn.style.opacity = '1';
+            confirmUploadBtn.style.pointerEvents = 'auto';
+          }
+        });
+      }
 
       // --- Search Input ---
       const searchInput = document.getElementById('search-input');
@@ -1913,12 +2066,12 @@
                 plOverdueHrs = String(Math.floor((new Date() - created) / (1000 * 60 * 60)));
               }
               return {
-                "Request ID": row.id || '',
-                "Style Name": row.style || row.Style || '',
+                "C Number": row.id || '',
+                "Customer Ref": row.style || row.Style || '',
                 "Customer": row.customer || row.Customer || '',
-                "Assigned PL": row.assignee || row.PL_Name || '',
+                "PL": row.assignee || row.PL_Name || '',
                 "Remarks": row.remarks || row.Remarks || '',
-                "Costing Ready Date": row.due || '',
+                "Costing Expected Date": row.due || '',
                 "Status": row.status || row.Status || '',
                 "PL Overdue (hrs)": plOverdueHrs,
                 "Folder Link": row.folderLink || row.Folder_Path || ''
@@ -1935,11 +2088,11 @@
                 leadtimeHrs = String(Math.floor((uploaded - created) / (1000 * 60 * 60)));
               }
               return {
-                "Request ID": row.id || '',
-                "Style Name": row.style || row.Style || '',
+                "C Number": row.id || '',
+                "Customer Ref": row.style || row.Style || '',
                 "Customer": row.customer || row.Customer || '',
-                "Assigned PL": row.assignee || row.PL_Name || '',
-                "Costing Ready Date": row.due || '',
+                "PL": row.assignee || row.PL_Name || '',
+                "Costing Expected Date": row.due || '',
                 "Status": row.status || row.Status || '',
                 "PL Leadtime (hrs)": leadtimeHrs,
                 "Uploaded Date": row.PL_Uploaded_Date || '',
@@ -2072,28 +2225,23 @@
 
                       // Exactly identical logic to your Completed Table Details!
                       const displayFields = [
-                        { label: 'Request ID', value: rowData.id },
+                        { label: 'C_Number', value: rowData.id },
+                        { label: 'Customer Reference', value: rowData.Style || rowData.style || rowData.Customer_Ref || rowData.customerRef },
+                        { label: 'Customer Type', value: rowData.Customer_Type || rowData.customerType || rowData.Cus_Dept || rowData.cusDept },
                         { label: 'Customer', value: rowData.Customer || rowData.customer },
-                        { label: 'Cus Dept', value: rowData.Cus_Dept || rowData.cusDept },
                         { label: 'TKL Season', value: rowData.TKL_Season || rowData.tklSeason },
                         { label: 'Main Fabric', value: rowData.Main_Fabric || rowData.mainFabric },
                         { label: 'Fabric Header', value: rowData.Fabric_Header || rowData.fabricHeader },
                         { label: 'PL Name', value: rowData.PL_Name || rowData.assignee },
                         { label: 'Status', value: rowData.Status || rowData.status },
                         { label: 'Created', value: formatDateOnly(rowData.Created || rowData.createdDate) },
-                        { label: 'Created By', value: rowData['Created By'] || rowData.createdBy },
-                        { label: 'Remarks', value: rowData.remarks || rowData.Remarks || '' },
-                        { label: 'Remarks Techpack', value: rowData.Remarks_Techpack || rowData.remarks_techpack || '' },
-                        { label: 'Folder Path', value: rowData.folderLink || rowData.Folder_Path || rowData.folder_path || '' }
+                        { label: 'Created By', value: rowData['Created By'] || rowData.createdBy }
                       ];
 
                       detailsContent.innerHTML = displayFields.map(field => {
                         let displayValue = field.value || '-';
                         if (field.label === 'Status') {
                           displayValue = `<span class="badge" style="background-color: var(--status-progress-bg); color: var(--status-progress-text); padding: 2px 8px; border-radius: 12px; font-weight: 600; font-size: 12px;">${displayValue}</span>`;
-                        }
-                        if (field.label === 'Folder Path' && displayValue !== '-' && /^https?:\/\//i.test(displayValue)) {
-                          displayValue = `<a href="${displayValue}" target="_blank" style="color: var(--primary-color); text-decoration: underline; font-weight: 600;">Open Folder</a>`;
                         }
 
                         return `
@@ -2132,22 +2280,18 @@
         if (!rowData) return;
         const detailsContent = document.getElementById('details-content');
         const displayFields = [
-          { label: 'Request ID', value: rowData.id },
+          { label: 'C_Number', value: rowData.id },
+          { label: 'Customer Reference', value: rowData.Style || rowData.style || rowData.Customer_Ref || rowData.customerRef },
+          { label: 'Customer Type', value: rowData.Customer_Type || rowData.customerType || rowData.Cus_Dept || rowData.cusDept },
           { label: 'Customer', value: rowData.Customer || rowData.customer },
-          { label: 'Style', value: rowData.Style || rowData.style },
           { label: 'PL Name', value: rowData.PL_Name || rowData.assignee },
           { label: 'Remarks', value: rowData.remarks || rowData.Remarks || '' },
-          { label: 'Remarks Techpack', value: rowData.Remarks_Techpack || rowData.remarks_techpack || '' },
           { label: 'Created Date', value: formatToDDMMYYYY(rowData.createdDate || rowData.Created) },
-          { label: 'Status', value: rowData.Status || rowData.status },
-          { label: 'Folder Path', value: rowData.folderLink || rowData.Folder_Path || '' }
+          { label: 'Status', value: rowData.Status || rowData.status }
         ];
         detailsContent.innerHTML = displayFields.map(field => {
           let displayValue = field.value || '-';
           if (field.label === 'Status') displayValue = `<span class="badge" style="background-color: var(--status-progress-bg); color: var(--status-progress-text); padding: 4px 8px; border-radius: 12px; font-weight: 600; font-size: 11px;">${displayValue}</span>`;
-          if (field.label === 'Folder Path' && displayValue !== '-' && /^https?:\/\//i.test(displayValue)) {
-            displayValue = `<a href="${displayValue}" target="_blank" style="color: var(--primary-color); text-decoration: underline; font-weight: 600;">Open Folder</a>`;
-          }
           return `<div style="display:flex; justify-content:space-between; border-bottom:1px solid #f3f4f6; padding: 10px 4px; align-items: flex-start; gap: 16px;"><strong style="color: var(--text-muted); font-weight: 500; min-width: 120px;">${field.label}</strong><span style="color: var(--text-main); font-weight: 500; text-align: right; word-break: break-word;">${displayValue}</span></div>`;
         }).join('');
         document.getElementById('details-modal').style.display = 'flex';
@@ -2195,6 +2339,10 @@
 
         navCompleted.addEventListener('click', (e) => {
           e.preventDefault();
+          const detailsModal = document.getElementById('details-modal');
+          if (detailsModal) detailsModal.style.display = 'none';
+          if (uploadConfigSection) uploadConfigSection.style.display = 'none';
+          if (activeRequestBanner) activeRequestBanner.style.display = 'none';
           currentTab = 'Completed';
           navCompleted.classList.add('active');
           navUploads.classList.remove('active');
