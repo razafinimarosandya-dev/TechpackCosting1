@@ -1242,6 +1242,62 @@
       // --- Dynamic Table Data (from Google Sheets) ---
       let requestsRows = [];
 
+      function renderFabricDetails(row) {
+        const container = document.getElementById('sel-detail-fabric-container') || document.getElementById('modal-fabric-container');
+        if (!container) return;
+        container.innerHTML = '';
+
+        const rawAddOns = row['Fabric Add Ons'] || row.Fabric_Add_Ons || '';
+        let fabricRows = [];
+
+        if (rawAddOns && String(rawAddOns).startsWith('[')) {
+          try {
+            fabricRows = JSON.parse(rawAddOns);
+          } catch (e) {
+            console.error("Fabric JSON parse error", e);
+          }
+        }
+
+        // Fallback or Single Legacy Item
+        if (!Array.isArray(fabricRows) || fabricRows.length === 0) {
+          const mainFabric = row.Main_Fabric || row.mainFabric || row['Fabric Add Ons'] || '-';
+          if (mainFabric !== '-') {
+            fabricRows = [{
+              opt: 'A',
+              fabric: mainFabric,
+              header: row.Fabric_Header || row.fabricHeader || '-'
+            }];
+          }
+        }
+
+        if (!Array.isArray(fabricRows) || fabricRows.length === 0) {
+          container.innerHTML = '<div style="color: var(--text-muted); font-style: italic; font-size: 12px;">No fabric details available</div>';
+          return;
+        }
+
+        fabricRows.forEach((item, idx) => {
+          const opt = item.opt || String.fromCharCode(65 + idx);
+          const html = `
+            <div class="fabric-badge-item">
+              <div class="fabric-badge-opt">${opt}</div>
+              <div class="fabric-info-col">
+                <span class="fabric-info-label">Fabric</span>
+                <span class="fabric-info-val" title="${item.fabric || '-'}">${item.fabric || '-'}</span>
+              </div>
+              <div class="fabric-info-col">
+                <span class="fabric-info-label">Gms / Comp</span>
+                <span class="fabric-info-val">${item.gms || '-'}${item.composition ? ' / ' + item.composition : ''}</span>
+              </div>
+              <div class="fabric-info-col">
+                <span class="fabric-info-label">Header</span>
+                <span class="fabric-info-val" title="${item.header || '-'}">${item.header || '-'}</span>
+              </div>
+            </div>
+          `;
+          container.insertAdjacentHTML('beforeend', html);
+        });
+      }
+
       // Filter states
       let currentTab = 'Uploads';
       let searchText = '';
@@ -1282,62 +1338,6 @@
         const pls = [...new Set(requestsRows.map(r => r.PL_Name || r.assignee).filter(Boolean))];
         const customers = [...new Set(requestsRows.map(r => r.Customer || r.customer).filter(Boolean))];
         const statuses = [...new Set(requestsRows.map(r => r.Status || r.status).filter(Boolean))];
-
-      function renderFabricDetails(row) {
-        const container = document.getElementById('sel-detail-fabric-container');
-        if (!container) return;
-        container.innerHTML = '';
-
-        const rawAddOns = row['Fabric Add Ons'] || row.Fabric_Add_Ons || '';
-        let fabricRows = [];
-
-        if (rawAddOns && String(rawAddOns).startsWith('[')) {
-          try {
-            fabricRows = JSON.parse(rawAddOns);
-          } catch (e) {
-            console.error("Fabric JSON parse error", e);
-          }
-        }
-
-        // Fallback or Single Legacy Item
-        if (fabricRows.length === 0) {
-          const mainFabric = row.Main_Fabric || row.mainFabric || row['Fabric Add Ons'] || '-';
-          if (mainFabric !== '-') {
-            fabricRows.push({
-              opt: 'A',
-              fabric: mainFabric,
-              header: row.Fabric_Header || row.fabricHeader || '-'
-            });
-          }
-        }
-
-        if (fabricRows.length === 0) {
-          container.innerHTML = '<div style="color: var(--text-muted); font-style: italic; font-size: 12px;">No fabric details available</div>';
-          return;
-        }
-
-        fabricRows.forEach((item, idx) => {
-          const opt = item.opt || String.fromCharCode(65 + idx);
-          const html = `
-            <div class="fabric-badge-item">
-              <div class="fabric-badge-opt">${opt}</div>
-              <div class="fabric-info-col">
-                <span class="fabric-info-label">Fabric</span>
-                <span class="fabric-info-val" title="${item.fabric || '-'}">${item.fabric || '-'}</span>
-              </div>
-              <div class="fabric-info-col">
-                <span class="fabric-info-label">Gms / Comp</span>
-                <span class="fabric-info-val">${item.gms || '-'}${item.composition ? ' / ' + item.composition : ''}</span>
-              </div>
-              <div class="fabric-info-col">
-                <span class="fabric-info-label">Header</span>
-                <span class="fabric-info-val" title="${item.header || '-'}">${item.header || '-'}</span>
-              </div>
-            </div>
-          `;
-          container.insertAdjacentHTML('beforeend', html);
-        });
-      }
 
         const fills = [
           { id: 'id-list-tp', vals: ids },
