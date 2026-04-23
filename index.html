@@ -1729,18 +1729,32 @@
       // Helper to globally parse Dates for Calendar
       const globalParseSheetDate = (dateStr) => {
         if (!dateStr || String(dateStr).trim() === '-' || String(dateStr).trim() === '') return null;
-        let parts = String(dateStr).trim().split(' ');
+        if (dateStr instanceof Date) return dateStr;
+        
+        let s = String(dateStr).trim();
+        // Handle DD/MM/YYYY HH:MM:SS
+        let parts = s.split(' ');
         let datePart = parts[0];
         let timePart = parts[1] || '00:00:00';
+        
         if (datePart.includes('/')) {
           let pts = datePart.split('/');
           if (pts.length === 3) {
-            let yr = pts[2].length === 2 ? '20' + pts[2] : pts[2];
-            let d = new Date(`${yr}-${pts[1]}-${pts[0]}T${timePart}`);
-            if (!isNaN(d)) return d;
+            let d = parseInt(pts[0], 10);
+            let m = parseInt(pts[1], 10) - 1;
+            let y = pts[2].length === 2 ? 2000 + parseInt(pts[2], 10) : parseInt(pts[2], 10);
+            
+            let t = timePart.split(':');
+            let h = parseInt(t[0] || 0, 10);
+            let min = parseInt(t[1] || 0, 10);
+            let sec = parseInt(t[2] || 0, 10);
+            
+            let finalDate = new Date(y, m, d, h, min, sec);
+            if (!isNaN(finalDate)) return finalDate;
           }
         }
-        let fallback = new Date(dateStr);
+        
+        let fallback = new Date(s);
         return isNaN(fallback) ? null : fallback;
       };
 
