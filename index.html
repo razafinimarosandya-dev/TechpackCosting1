@@ -2318,62 +2318,64 @@
         if (!rowData) return;
         const detailsContent = document.getElementById('details-content');
         
-        // Internal keys to ignore
-        const ignoreKeys = ['_rowIndex', 'Fabric Add Ons', 'Fabric_Add_Ons', 'folderLink', 'Folder_Path'];
-        
-        // Define common field mappings to ensure consistent display
-        const displayMappings = [
-          { label: 'C Number', key: ['C_Number', 'id'] },
-          { label: 'Customer Reference', key: ['Customer_Ref', 'style', 'Style'] },
-          { label: 'Customer', key: ['Customer', 'customer'] },
-          { label: 'Customer Type', key: ['Customer_Type', 'customerType', 'Cus_Dept'] },
-          { label: 'TKL Season', key: ['TKL_Season', 'Season'] },
-          { label: 'PL Name', key: ['PL_Name', 'assignee'] },
-          { label: 'Status', key: ['Status', 'status'] },
-          { label: 'Created By', key: ['Created By', 'createdBy'] },
-          { label: 'Created Date', key: ['Created', 'createdDate'] },
-          { label: 'Remarks', key: ['Remarks', 'remarks', 'Remarks Techpack'] }
+        const DETAIL_FIELDS = [
+          "C_Number", "Customer_Ref", "Customer", "Cus_Dept", "Season",
+          "PL_Name", "Status", "Created", "Created By", "Folder_Path"
         ];
 
-        let htmlEntries = displayMappings.map(map => {
-          const actualKey = map.key.find(k => rowData[k] !== undefined && rowData[k] !== null && String(rowData[k]).trim() !== '');
-          if (!actualKey) return '';
-          
-          let val = rowData[actualKey];
-          let displayValue = val;
-          if (map.label === 'Status') {
-            displayValue = `<span class="badge" style="background-color: var(--status-progress-bg); color: var(--status-progress-text); padding: 2px 8px; border-radius: 12px; font-weight: 600; font-size: 11px;">${val}</span>`;
-          } else if (map.label.toLowerCase().includes('date') || map.label === 'Created') {
-            displayValue = formatDateOnly(val);
+        const listContainer = document.createElement('div');
+        listContainer.className = "form-list";
+
+        DETAIL_FIELDS.forEach(field => {
+          const div = document.createElement('div');
+          div.className = "detail-row";
+
+          let labelName = field === "C_Number" ? "C Number" : field.replace(/_/g, ' ');
+          if (field === "Customer_Ref") labelName = "Customer Reference";
+          if (field === "Cus_Dept") labelName = "Customer Type";
+          if (field === "Season") labelName = "TKL Season";
+          if (field === "PL_Name") labelName = "PL Name";
+          if (field === "Created") labelName = "Created Date";
+          if (field === "Folder_Path") labelName = "Folder Path";
+
+          let val = rowData[field] || rowData[field.toLowerCase()] || rowData[field.replace(/_/g, ' ')] || "-";
+          if (val === undefined || val === null || String(val).trim() === "") val = "-";
+
+          let displayVal = val;
+          if (field === "Status") {
+            displayVal = `<span class="badge" style="background-color: var(--status-progress-bg); color: var(--status-progress-text); padding: 2px 8px; border-radius: 12px; font-weight: 600; font-size: 11px;">${val}</span>`;
+          } else if ((field === "Created" || field.toLowerCase().includes('date')) && val !== "-") {
+            displayVal = formatDateOnly(val);
+          } else if (field === "Folder_Path" && val !== "-" && String(val).startsWith("http")) {
+            displayVal = `<a href="${val}" target="_blank" style="color: #3b82f6; font-weight: 700; text-decoration: underline;">Open Folder</a>`;
           }
 
-          return `
-            <div class="detail-row">
-              <span class="detail-label">${map.label}</span>
-              <span class="detail-value">${displayValue}</span>
-            </div>
+          div.innerHTML = `
+            <span class="detail-label">${labelName}</span>
+            <span class="detail-value">${displayVal}</span>
           `;
-        }).join('');
+          listContainer.appendChild(div);
+        });
 
-        // Add any other fields not in mappings but not in ignore list
-        const handledKeys = displayMappings.flatMap(m => m.key);
-        const extraEntries = Object.entries(rowData)
-          .filter(([key, val]) => !ignoreKeys.includes(key) && !handledKeys.includes(key))
-          .filter(([key, val]) => val && String(val).trim() !== '' && String(val).trim() !== '-')
-          .map(([key, val]) => `
-            <div class="detail-row">
-              <span class="detail-label">${key.replace(/_/g, ' ')}</span>
-              <span class="detail-value">${val}</span>
-            </div>
-          `).join('');
+        // Add Remarks if present and not in common fields
+        if (rowData.Remarks_Techpack || rowData.remarks || rowData.Remarks) {
+          const remVal = rowData.Remarks_Techpack || rowData.remarks || rowData.Remarks;
+          const div = document.createElement('div');
+          div.className = "detail-row";
+          div.innerHTML = `
+            <span class="detail-label">Remarks</span>
+            <span class="detail-value">${remVal}</span>
+          `;
+          listContainer.appendChild(div);
+        }
 
-        detailsContent.innerHTML = `
-          <div class="form-list">
-            ${htmlEntries}
-            ${extraEntries}
-          </div>
-          <div id="modal-fabric-container" style="margin-top: 24px;"></div>
-        `;
+        detailsContent.innerHTML = "";
+        detailsContent.appendChild(listContainer);
+        
+        const fabricTableDiv = document.createElement('div');
+        fabricTableDiv.id = "modal-fabric-container";
+        fabricTableDiv.style.marginTop = "24px";
+        detailsContent.appendChild(fabricTableDiv);
         
         renderFabricDetails(rowData, 'modal-fabric-container');
         document.getElementById('details-modal').style.display = 'flex';
