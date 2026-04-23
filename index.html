@@ -1829,8 +1829,8 @@
           const currentPL = (document.getElementById('sel-detail-pl').textContent || '').replace('PL: ', '').trim();
           const appLink = window.location.origin + window.location.pathname;
           const uploadRemarkInput = document.getElementById('upload-remark-input');
-          const rowData = requestsRows.find((r, i) => (r.id || `REQ-${i + 1}`) === currentId);
-          const folderPath = rowData ? (rowData.folderLink || rowData.Folder_Path || rowData.folder_path || '').trim() : '';
+          const rowData = requestsRows.find((r, i) => (r.C_Number || r.id || `REQ-${i + 1}`) === currentId);
+          const folderPath = rowData ? (rowData.Folder_Path || rowData.folderLink || '').trim() : '';
 
           // Open folder path on submit while preserving the existing submit flow.
           if (folderPath && folderPath !== '-' && /^https?:\/\//i.test(folderPath)) {
@@ -1876,32 +1876,31 @@
         saveRemarksBtn.addEventListener('click', async () => {
           const id = document.getElementById('remarks-req-id').textContent;
           const remarksVal = document.getElementById('remarks-input').value.trim();
+          const row = requestsRows.find(r => (r.C_Number || r.id) === id);
 
           saveRemarksBtn.textContent = 'Saving...';
           saveRemarksBtn.disabled = true;
-
           try {
-            await fetch(GOOGLE_SCRIPT_URL, {
+            const response = await fetch(APPS_SCRIPT_URL, {
               method: 'POST',
-              mode: 'no-cors',
-              headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
+                action: 'update',
+                rowIndex: row ? row._rowIndex : null,
                 requestId: id,
-                // Keep variable names as-is, but send the backend-canonical action.
-                // The backend also accepts old aliases, but this removes ambiguity.
-                remarks: remarksVal,
-                storageAreaRemarks: remarksVal,
-                Storage_Area_Remarks: remarksVal,
-                action: 'saveStorageAreaRemarks'
+                updates: {
+                  'Remarks Techpack': remarksVal
+                }
               })
             });
-            // With no-cors we can't inspect the response; verify by reloading data.
+            const result = await response.json();
+            if (result.status !== 'success') throw new Error(result.message || "Failed to update remark");
+            
             await loadTableData();
-            alert('Remark saved (data refreshed).');
+            alert('Remark saved successfully.');
             remarksModal.style.display = 'none';
-          } catch (err) {
-            console.error(err);
-            alert('Failed to save remark.');
+          } catch (error) {
+            console.error("Save remark error:", error);
+            alert("Error saving remark: " + error.message);
           } finally {
             saveRemarksBtn.textContent = 'Save Remark';
             saveRemarksBtn.disabled = false;
