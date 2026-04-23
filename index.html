@@ -1002,10 +1002,10 @@
             border-radius: 6px;
             padding: 8px 12px;
             display: grid;
-            grid-template-columns: 30px 60px 1fr 100px 60px 80px;
+            grid-template-columns: 30px 60px 1.2fr 80px 1fr 70px 80px;
             gap: 12px;
             align-items: center;
-            min-width: 700px;
+            min-width: 800px;
           }
 
           .fabric-badge-opt {
@@ -1279,7 +1279,7 @@
         fabricRows.forEach((item, idx) => {
           const opt = item.opt || String.fromCharCode(65 + idx);
           const html = `
-            <div class="fabric-badge-item" style="grid-template-columns: 30px 100px 1fr 120px 1fr 80px 100px;">
+            <div class="fabric-badge-item" style="grid-template-columns: 30px 100px 1fr 80px 1fr 80px 100px;">
               <div class="fabric-badge-opt">${opt}</div>
               <div class="fabric-info-col">
                 <span class="fabric-info-label">Type</span>
@@ -1290,8 +1290,12 @@
                 <span class="fabric-info-val" title="${item.fabric || '-'}">${item.fabric || '-'}</span>
               </div>
               <div class="fabric-info-col">
-                <span class="fabric-info-label">Gms/Comp</span>
-                <span class="fabric-info-val" title="${item.gms || '-'}${item.composition ? ' / ' + item.composition : ''}">${item.gms || '-'}${item.composition ? ' / ' + item.composition : ''}</span>
+                <span class="fabric-info-label">Gms</span>
+                <span class="fabric-info-val">${item.gms || '-'}</span>
+              </div>
+              <div class="fabric-info-col">
+                <span class="fabric-info-label">Composition</span>
+                <span class="fabric-info-val" title="${item.composition || '-'}">${item.composition || '-'}</span>
               </div>
               <div class="fabric-info-col">
                 <span class="fabric-info-label">Width</span>
