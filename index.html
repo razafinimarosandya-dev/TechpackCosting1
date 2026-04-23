@@ -1037,9 +1037,8 @@
           .fabric-info-val {
             font-size: 12px;
             color: var(--text-main);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            word-break: break-word;
+            line-height: 1.2;
           }
         </style>
 
@@ -1279,15 +1278,15 @@
         fabricRows.forEach((item, idx) => {
           const opt = item.opt || String.fromCharCode(65 + idx);
           const html = `
-            <div class="fabric-badge-item" style="grid-template-columns: 30px 100px 1fr 80px 1fr 80px 100px;">
-              <div class="fabric-badge-opt">${opt}</div>
+            <div class="fabric-badge-item" style="grid-template-columns: 30px 80px 1.5fr 70px 1.5fr 70px 90px; align-items: start; min-width: 850px;">
+              <div class="fabric-badge-opt" style="margin-top: 4px;">${opt}</div>
               <div class="fabric-info-col">
                 <span class="fabric-info-label">Type</span>
                 <span class="fabric-info-val">${item.type || '-'}</span>
               </div>
               <div class="fabric-info-col">
                 <span class="fabric-info-label">Fabric</span>
-                <span class="fabric-info-val" title="${item.fabric || '-'}">${item.fabric || '-'}</span>
+                <span class="fabric-info-val">${item.fabric || '-'}</span>
               </div>
               <div class="fabric-info-col">
                 <span class="fabric-info-label">Gms</span>
@@ -1295,7 +1294,7 @@
               </div>
               <div class="fabric-info-col">
                 <span class="fabric-info-label">Composition</span>
-                <span class="fabric-info-val" title="${item.composition || '-'}">${item.composition || '-'}</span>
+                <span class="fabric-info-val">${item.composition || '-'}</span>
               </div>
               <div class="fabric-info-col">
                 <span class="fabric-info-label">Width</span>
@@ -1303,7 +1302,7 @@
               </div>
               <div class="fabric-info-col" style="border-left: 1px solid #e2e8f0; padding-left: 10px;">
                 <span class="fabric-info-label">Header</span>
-                <span class="fabric-info-val" title="${item.header || '-'}">${item.header || '-'}</span>
+                <span class="fabric-info-val">${item.header || '-'}</span>
               </div>
             </div>
           `;
