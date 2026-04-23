@@ -1435,53 +1435,69 @@
         }
 
         if (!Array.isArray(fabricRows) || fabricRows.length === 0) {
-          const mainFabric = row.Main_Fabric || row.mainFabric || row['Fabric Add Ons'] || '-';
-          if (mainFabric !== '-' && mainFabric !== '') {
+          const mainFabric = row.Main_Fabric || row.mainFabric || row['Fabric Add Ons'] || '';
+          if (mainFabric && mainFabric !== '-') {
             fabricRows = [{
               opt: 'A',
               fabric: mainFabric,
-              header: row.Fabric_Header || row.fabricHeader || '-',
-              type: '-', gms: '-', composition: '-', width: '-'
+              header: row.Fabric_Header || row.fabricHeader || '',
+              type: '', gms: '', composition: '', width: ''
             }];
           }
         }
 
         if (!Array.isArray(fabricRows) || fabricRows.length === 0) {
-          container.innerHTML = '<div style="color: var(--text-muted); font-style: italic; font-size: 12px; padding: 10px;">No fabric details available</div>';
+          container.innerHTML = '<div style="color: var(--text-muted); font-style: italic; font-size: 12px; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc;">No fabric details available</div>';
           return;
         }
+
+        // Define columns and check which ones have data
+        const columns = [
+          { key: "opt", label: "OPT", width: "45px" },
+          { key: "type", label: "Type", width: "" },
+          { key: "fabric", label: "Fabric Name", width: "" },
+          { key: "gms", label: "GMS", width: "70px" },
+          { key: "composition", label: "Composition", width: "" },
+          { key: "width", label: "Width", width: "70px" },
+          { key: "header", label: "Header", width: "" }
+        ];
+
+        const activeCols = columns.filter(col => {
+          if (col.key === 'opt' || col.key === 'fabric') return true; // Always show OPT and Fabric Name
+          return fabricRows.some(r => r[col.key] && String(r[col.key]).trim() !== '' && String(r[col.key]).trim() !== '-');
+        });
 
         const tableHtml = `
           <div class="fabric-table-wrap">
             <div class="fabric-table-toolbar">
-              <span class="fabric-table-title">Fabric Technical Details</span>
+              <span class="fabric-table-title">Fabric Details</span>
             </div>
-            <table class="fabric-table">
-              <thead>
-                <tr>
-                  <th style="width: 45px;">OPT</th>
-                  <th>Type</th>
-                  <th>Fabric Name</th>
-                  <th style="width: 70px;">GMS</th>
-                  <th>Composition</th>
-                  <th style="width: 70px;">Width</th>
-                  <th>Header</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${fabricRows.map((item, idx) => `
+            <div style="overflow-x: auto;">
+              <table class="fabric-table">
+                <thead>
                   <tr>
-                    <td><div class="fabric-opt-chip">${item.opt || String.fromCharCode(65 + idx)}</div></td>
-                    <td>${item.type || '-'}</td>
-                    <td style="font-weight: 600;">${item.fabric || '-'}</td>
-                    <td>${item.gms || '-'}</td>
-                    <td>${item.composition || '-'}</td>
-                    <td>${item.width || '-'}</td>
-                    <td>${item.header || '-'}</td>
+                    ${activeCols.map(col => `<th ${col.width ? `style="width: ${col.width};"` : ''}>${col.label}</th>`).join('')}
                   </tr>
-                `).join('')}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  ${fabricRows.map((item, idx) => `
+                    <tr>
+                      ${activeCols.map(col => {
+                        let val = item[col.key] || (col.key === 'opt' ? String.fromCharCode(65 + idx) : '-');
+                        let displayVal = val;
+                        if (String(val).startsWith('http')) {
+                          displayVal = `<a href="${val}" target="_blank" style="color: #3b82f6; font-weight: 700; text-decoration: underline;">Open Folder</a>`;
+                        }
+                        if (col.key === 'opt') {
+                          return `<td><div class="fabric-opt-chip">${val}</div></td>`;
+                        }
+                        return `<td ${col.key === 'fabric' ? 'style="font-weight: 600;"' : ''}>${displayVal}</td>`;
+                      }).join('')}
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
           </div>
         `;
         container.innerHTML = tableHtml;
@@ -2317,7 +2333,16 @@
       function openDetailsInternal(rowData) {
         if (!rowData) return;
         const detailsContent = document.getElementById('details-content');
+        detailsContent.innerHTML = "";
+
+        // 1. Fabric Details at the top
+        const fabricTableDiv = document.createElement('div');
+        fabricTableDiv.id = "modal-fabric-container";
+        fabricTableDiv.style.marginBottom = "24px";
+        detailsContent.appendChild(fabricTableDiv);
+        renderFabricDetails(rowData, 'modal-fabric-container');
         
+        // 2. General Details
         const DETAIL_FIELDS = [
           "C_Number", "Customer_Ref", "Customer", "Cus_Dept", "Season",
           "PL_Name", "Status", "Created", "Created By", "Folder_Path"
@@ -2327,6 +2352,11 @@
         listContainer.className = "form-list";
 
         DETAIL_FIELDS.forEach(field => {
+          let val = rowData[field] || rowData[field.toLowerCase()] || rowData[field.replace(/_/g, ' ')] || "";
+          
+          // HIDE IF EMPTY
+          if (val === undefined || val === null || String(val).trim() === "" || String(val).trim() === "-") return;
+
           const div = document.createElement('div');
           div.className = "detail-row";
 
@@ -2338,15 +2368,12 @@
           if (field === "Created") labelName = "Created Date";
           if (field === "Folder_Path") labelName = "Folder Path";
 
-          let val = rowData[field] || rowData[field.toLowerCase()] || rowData[field.replace(/_/g, ' ')] || "-";
-          if (val === undefined || val === null || String(val).trim() === "") val = "-";
-
           let displayVal = val;
           if (field === "Status") {
             displayVal = `<span class="badge" style="background-color: var(--status-progress-bg); color: var(--status-progress-text); padding: 2px 8px; border-radius: 12px; font-weight: 600; font-size: 11px;">${val}</span>`;
-          } else if ((field === "Created" || field.toLowerCase().includes('date')) && val !== "-") {
+          } else if ((field === "Created" || field.toLowerCase().includes('date')) && val !== "") {
             displayVal = formatDateOnly(val);
-          } else if (field === "Folder_Path" && val !== "-" && String(val).startsWith("http")) {
+          } else if (field === "Folder_Path" && String(val).startsWith("http")) {
             displayVal = `<a href="${val}" target="_blank" style="color: #3b82f6; font-weight: 700; text-decoration: underline;">Open Folder</a>`;
           }
 
@@ -2357,9 +2384,9 @@
           listContainer.appendChild(div);
         });
 
-        // Add Remarks if present and not in common fields
-        if (rowData.Remarks_Techpack || rowData.remarks || rowData.Remarks) {
-          const remVal = rowData.Remarks_Techpack || rowData.remarks || rowData.Remarks;
+        // Add Remarks if present
+        const remVal = rowData.Remarks_Techpack || rowData.remarks || rowData.Remarks || "";
+        if (remVal && String(remVal).trim() !== "" && String(remVal).trim() !== "-") {
           const div = document.createElement('div');
           div.className = "detail-row";
           div.innerHTML = `
@@ -2369,15 +2396,7 @@
           listContainer.appendChild(div);
         }
 
-        detailsContent.innerHTML = "";
         detailsContent.appendChild(listContainer);
-        
-        const fabricTableDiv = document.createElement('div');
-        fabricTableDiv.id = "modal-fabric-container";
-        fabricTableDiv.style.marginTop = "24px";
-        detailsContent.appendChild(fabricTableDiv);
-        
-        renderFabricDetails(rowData, 'modal-fabric-container');
         document.getElementById('details-modal').style.display = 'flex';
       }
 
