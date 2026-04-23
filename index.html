@@ -814,20 +814,25 @@
             <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
           </svg>
         </button>
-        
+
         <!-- Updated Profile Container -->
         <div class="profile-container" id="profile-trigger">
           <img id="user-avatar"
             style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid white; box-shadow: var(--shadow-sm);"
             src="https://ui-avatars.com/api/?name=User&background=cbd5e1&color=fff" alt="User Profile" />
-            
+
           <div class="user-dropdown" id="user-dropdown">
             <div class="dropdown-header">
               <span class="user-email" id="dropdown-email">Loading...</span>
             </div>
             <div class="dropdown-divider"></div>
             <button class="sign-out-btn" id="sign-out-btn">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
               Sign Out
             </button>
           </div>
@@ -943,58 +948,53 @@
             </svg>
             Detail
           </h3>
-          <div id="selection-details-grid"
-            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; background: #f8fafc; padding: 24px; border-radius: 12px; border: 1px solid #e2e8f0;">
+          <div id="selection-details-grid" class="form-grid">
+            <div class="detail-card">
+              <span class="detail-label">C Number</span>
+              <div class="detail-value" id="sel-detail-id">-</div>
+            </div>
+            <div class="detail-card">
+              <span class="detail-label">Customer Ref</span>
+              <div class="detail-value" id="sel-detail-title">-</div>
+            </div>
+            <div class="detail-card">
+              <span class="detail-label">Customer</span>
+              <div class="detail-value" id="sel-detail-cust">-</div>
+            </div>
+            <div class="detail-card">
+              <span class="detail-label">Cus Dept</span>
+              <div class="detail-value" id="sel-detail-dept">-</div>
+            </div>
+            <div class="detail-card">
+              <span class="detail-label">TKL Season</span>
+              <div class="detail-value" id="sel-detail-season">-</div>
+            </div>
+            <div class="detail-card">
+              <span class="detail-label">PL Name</span>
+              <div class="detail-value" id="sel-detail-pl">-</div>
+            </div>
+            <div class="detail-card">
+              <span class="detail-label">Status</span>
+              <div class="detail-value" id="sel-detail-status">-</div>
+            </div>
+            <div class="detail-card">
+              <span class="detail-label">Created</span>
+              <div class="detail-value" id="sel-detail-created">-</div>
+            </div>
+            <div class="detail-card">
+              <span class="detail-label">Created By</span>
+              <div class="detail-value" id="sel-detail-created-by">-</div>
+            </div>
 
-            <div class="detail-item">
-              <label>C_Number</label>
-              <div id="sel-detail-id">-</div>
-            </div>
-            <div class="detail-item">
-              <label>Customer Ref</label>
-              <div id="sel-detail-title">-</div>
-            </div>
-            <div class="detail-item">
-              <label>Customer</label>
-              <div id="sel-detail-cust">-</div>
-            </div>
-            <div class="detail-item">
-              <label>Cust Dept</label>
-              <div id="sel-detail-dept">-</div>
-            </div>
-            <div class="detail-item">
-              <label>TKL Season</label>
-              <div id="sel-detail-season">-</div>
-            </div>
-            <div class="detail-item">
-              <label>PL Name</label>
-              <div id="sel-detail-pl">-</div>
-            </div>
-            <div class="detail-item">
-              <label>Status</label>
-              <div id="sel-detail-status">-</div>
-            </div>
-            <div class="detail-item">
-              <label>Created</label>
-              <div id="sel-detail-created">-</div>
-            </div>
-            <div class="detail-item">
-              <label>Created By</label>
-              <div id="sel-detail-created-by">-</div>
-            </div>
-            <div class="detail-item"
-              style="grid-column: 1 / -1; border-top: 1px dotted #e2e8f0; padding-top: 12px; margin-top: 8px;">
-              <label>Fabric Details</label>
-              <div id="sel-detail-fabric-container"
-                style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
-                <div style="color: var(--text-muted); font-style: italic; font-size: 12px;">No fabric details available
-                </div>
+            <div style="grid-column: 1 / -1; margin-top: 8px;">
+              <div id="sel-detail-fabric-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+                <div style="color: var(--text-muted); font-style: italic; font-size: 12px;">No fabric details available</div>
               </div>
             </div>
-            <div class="detail-item"
-              style="grid-column: 1 / -1; border-top: 1px solid #e2e8f0; padding-top: 12px; margin-top: 4px;">
-              <label>Folder Path</label>
-              <div id="sel-detail-folder" style="word-break: break-all; color: var(--primary-color);"> - </div>
+            
+            <div class="detail-card" style="grid-column: 1 / -1;">
+              <span class="detail-label">Folder Path</span>
+              <div class="detail-value" id="sel-detail-folder"> - </div>
             </div>
           </div>
         </div>
@@ -1017,50 +1017,6 @@
             line-height: 1.4;
           }
 
-          .fabric-badge-item {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            padding: 8px 12px;
-            display: grid;
-            grid-template-columns: 30px 60px 1.2fr 80px 1fr 70px 80px;
-            gap: 12px;
-            align-items: center;
-            min-width: 800px;
-          }
-
-          .fabric-badge-opt {
-            background: var(--primary-color);
-            color: white;
-            width: 24px;
-            height: 24px;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: 700;
-          }
-
-          .fabric-info-col {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-          }
-
-          .fabric-info-label {
-            font-size: 9px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            font-weight: 700;
-          }
-
-          .fabric-info-val {
-            font-size: 12px;
-            color: var(--text-main);
-            word-break: break-word;
-            line-height: 1.2;
-          }
 
           /* Modal System from Meeting Module */
           .modal-backdrop {
@@ -1147,41 +1103,63 @@
             background: #f8fafc;
           }
 
-          /* Detail List Styling */
-          .form-list {
+          .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+          }
+
+          .detail-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
-            gap: 0;
+            gap: 4px;
+            transition: var(--transition);
           }
 
-          .detail-row {
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 1px dashed #e2e8f0;
-            padding: 0.75rem 0.5rem;
-            align-items: flex-start;
-            gap: 24px;
-          }
-
-          .detail-row:last-child {
-            border-bottom: none;
+          .detail-card:hover {
+            border-color: #cbd5e1;
+            background: #f1f5f9;
+            box-shadow: var(--shadow-sm);
           }
 
           .detail-label {
+            font-size: 11px;
+            font-weight: 600;
             color: #64748b;
-            font-size: 0.85rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            min-width: 160px;
+            text-transform: capitalize;
+            letter-spacing: 0.01em;
+            margin-bottom: 2px;
           }
 
           .detail-value {
-            font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 14px;
+            font-weight: 700;
             color: #1e293b;
-            text-align: right;
             word-break: break-word;
+          }
+
+          .status-pill {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            display: inline-block;
+            letter-spacing: 0.02em;
+          }
+
+          .status-pill.awaiting-techpack {
+            background: #fef9c3;
+            color: #854d0e;
+          }
+
+          .status-pill.awaiting-pattern {
+            background: #dcfce7;
+            color: #166534;
           }
 
           /* User Dropdown Menu (Meeting Style) */
@@ -1728,30 +1706,30 @@
       const globalParseSheetDate = (dateStr) => {
         if (!dateStr || String(dateStr).trim() === '-' || String(dateStr).trim() === '') return null;
         if (dateStr instanceof Date) return dateStr;
-        
+
         let s = String(dateStr).trim();
         // Handle DD/MM/YYYY HH:MM:SS
         let parts = s.split(' ');
         let datePart = parts[0];
         let timePart = parts[1] || '00:00:00';
-        
+
         if (datePart.includes('/')) {
           let pts = datePart.split('/');
           if (pts.length === 3) {
             let d = parseInt(pts[0], 10);
             let m = parseInt(pts[1], 10) - 1;
             let y = pts[2].length === 2 ? 2000 + parseInt(pts[2], 10) : parseInt(pts[2], 10);
-            
+
             let t = timePart.split(':');
             let h = parseInt(t[0] || 0, 10);
             let min = parseInt(t[1] || 0, 10);
             let sec = parseInt(t[2] || 0, 10);
-            
+
             let finalDate = new Date(y, m, d, h, min, sec);
             if (!isNaN(finalDate)) return finalDate;
           }
         }
-        
+
         let fallback = new Date(s);
         return isNaN(fallback) ? null : fallback;
       };
@@ -1991,7 +1969,7 @@
         </td>
         <td>${formatToDDMMYYYY(row.Costing_Expected_Date || row.due)}</td>
         <td>
-          <span class="status-badge ${row.statusClass || 'status-pending'}">
+          <span class="status-pill ${(row.Status || row.status || '').toLowerCase().replace(/\s+/g, '-')}">
             ${row.Status || row.status || 'PENDING'}
           </span>
         </td>
@@ -2362,7 +2340,7 @@
 
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         document.getElementById('cal-month-title').textContent = `${monthNames[month]} ${year}`;
-        
+
         console.log(`[Calendar] Rendering ${monthNames[month]} ${year}. Total rows: ${requestsRows.length}`);
 
         const firstDayIndex = new Date(year, month, 1).getDay();
@@ -2371,12 +2349,12 @@
         let dayCounts = {};
         requestsRows.forEach(row => {
           const st = String(row.status || row.Status || '').toUpperCase().trim();
-          
+
           // Debug status
           if (st === 'AWAITING PATTERN') {
             const dateVal = row.PL_Uploaded_Date || row['PL_Uploaded_Date'] || '';
             const d = globalParseSheetDate(dateVal);
-            
+
             if (d && !isNaN(d)) {
               console.log(`[Calendar] Match found! ID: ${row.id || row.C_Number}, Date: ${dateVal}, Parsed: ${d.toDateString()}`);
               if (d.getFullYear() === year && d.getMonth() === month) {
@@ -2453,7 +2431,7 @@
 
               if (modal && title && content) {
                 title.textContent = `${monthNames[month]} ${i}, ${year}`;
-                
+
                 if (dailyReqs.length === 0) {
                   content.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">No requests found.</div>';
                 } else {
@@ -2512,9 +2490,9 @@
 
         // 2. Dynamic General Details based on all available keys
         const listContainer = document.createElement('div');
-        listContainer.className = "form-list";
+        listContainer.className = "form-grid";
 
-        // Internal/Technical keys to exclude from display loop (will handle Folder_Path later)
+        // Internal/Technical keys to exclude from display loop
         const excludeKeys = ['_rowIndex', 'Fabric Add Ons', 'Fabric_Add_Ons', 'folderLink', 'avatar', 'statusClass', 'id', 'Style', 'Main_Fabric', 'Fabric_Header', 'Folder_Path', 'Folder Path', 'PowerAppsId', 'PowerAppsId__'];
 
         Object.keys(rowData).forEach(key => {
@@ -2523,26 +2501,27 @@
           let val = rowData[key];
           if (val === undefined || val === null || String(val).trim() === "" || String(val).trim() === "-" || String(val).trim() === "N/A") return;
 
-          const div = document.createElement('div');
-          div.className = "detail-row";
+          const card = document.createElement('div');
+          card.className = "detail-card";
 
           let labelName = key.replace(/_/g, ' ');
           if (labelName.toLowerCase() === "c number") labelName = "C Number";
 
           let displayVal = val;
           if (key.toLowerCase().includes('status')) {
-            displayVal = `<span class="badge" style="background-color: var(--status-progress-bg); color: var(--status-progress-text); padding: 2px 8px; border-radius: 12px; font-weight: 600; font-size: 11px;">${val}</span>`;
+            const statusClass = String(val).toLowerCase().replace(/\s+/g, '-');
+            displayVal = `<span class="status-pill ${statusClass}">${val}</span>`;
           } else if (key.toLowerCase().includes('date') || key.toLowerCase() === 'created') {
             displayVal = formatDateOnly(val);
           } else if (String(val).startsWith('http')) {
-            displayVal = `<a href="${val}" target="_blank" style="color: #3b82f6; font-weight: 700; text-decoration: underline;">Open Folder</a>`;
+            displayVal = `<a href="${val}" target="_blank" style="color: #3b82f6; font-weight: 700; text-decoration: none;">Open Folder</a>`;
           }
 
-          div.innerHTML = `
-            <span class="detail-label" style="text-transform: capitalize;">${labelName}</span>
-            <span class="detail-value">${displayVal}</span>
+          card.innerHTML = `
+            <span class="detail-label">${labelName}</span>
+            <div class="detail-value">${displayVal}</div>
           `;
-          listContainer.appendChild(div);
+          listContainer.appendChild(card);
         });
 
         // 3. Append Folder Path at the VERY END
@@ -2550,17 +2529,18 @@
         if (folderKey && rowData[folderKey]) {
           const folderVal = rowData[folderKey];
           if (folderVal && String(folderVal).trim() !== "" && String(folderVal).trim() !== "-") {
-            const div = document.createElement('div');
-            div.className = "detail-row";
+            const card = document.createElement('div');
+            card.className = "detail-card";
+            card.style.gridColumn = "1 / -1";
             let displayVal = folderVal;
             if (String(folderVal).startsWith('http')) {
-              displayVal = `<a href="${folderVal}" target="_blank" style="color: #3b82f6; font-weight: 700; text-decoration: underline;">Open Folder</a>`;
+              displayVal = `<a href="${folderVal}" target="_blank" style="color: #3b82f6; font-weight: 700; text-decoration: none;">Open Folder</a>`;
             }
-            div.innerHTML = `
+            card.innerHTML = `
               <span class="detail-label">Folder Path</span>
-              <span class="detail-value">${displayVal}</span>
+              <div class="detail-value">${displayVal}</div>
             `;
-            listContainer.appendChild(div);
+            listContainer.appendChild(card);
           }
         }
 
@@ -2643,7 +2623,7 @@
         const hash = window.location.hash;
         const urlParams = new URLSearchParams(window.location.search);
         const querySession = urlParams.get('session');
-        
+
         let encodedData = null;
         if (hash.startsWith('#session=')) {
           encodedData = hash.substring(9);
