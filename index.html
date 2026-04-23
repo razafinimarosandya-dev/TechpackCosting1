@@ -1868,20 +1868,21 @@
           const currentRef = rowData.Customer_Ref || rowData.style || '-';
           const currentCustomer = rowData.Customer || rowData.customer || '-';
           const currentPL = rowData.PL_Name || rowData.assignee || 'Techpack Team';
-          const appLink = window.location.origin + window.location.pathname;
+          const appLink = "https://techpack-costing1.vercel.app/";
+          const timestamp = getFullDateTime();
 
           const payload = {
             action: 'update',
             rowIndex: rowData._rowIndex,
             updates: {
               'Status': 'Awaiting Pattern',
-              'PL_Uploaded_Date': getFullDateTime(),
+              'PL_Uploaded_Date': timestamp,
               'Remarks Techpack': finalRemarks
             },
             emailParams: {
-              to: recipients || "YTeeluck@tropicknits.com", // Fallback
-              subject: `Techpack Complete: ${currentId} - ${currentRef}`,
-              body: `Hi,\n\nTechpack has been successfully uploaded for ${currentCustomer}.\n\nC Number: ${currentId}\nReference: ${currentRef}\n\nRemarks: ${finalRemarks || 'No additional remarks.'}\n\nApp access: ${appLink}\n\nRegards,\n\n${currentPL}`
+              to: recipients || "YTeeluck@tropicknits.com", 
+              subject: `Update Request: ${currentId}`,
+              body: `Hello,\n\nThe request ${currentId} has been updated.\n\nChanges:\n- Status : "Awaiting Techpack" -> "Awaiting Pattern"\n- PL_Uploaded_Date : "" -> "${timestamp}"\nRemarks: ${finalRemarks || 'N/A'}\n\nApp access: ${appLink}\n\nRegards,\n\n${currentPL}`
             }
           };
 
