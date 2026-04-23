@@ -948,13 +948,11 @@
               <label>TKL Season</label>
               <div id="sel-detail-season">-</div>
             </div>
-            <div class="detail-item">
-              <label>Main Fabric</label>
-              <div id="sel-detail-fabric">-</div>
-            </div>
-            <div class="detail-item">
-              <label>Fabric Header</label>
-              <div id="sel-detail-header">-</div>
+            <div class="detail-item" style="grid-column: 1 / -1; border-top: 1px dotted #e2e8f0; padding-top: 12px; margin-top: 8px;">
+              <label>Fabric Details</label>
+              <div id="sel-detail-fabric-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+                <div style="color: var(--text-muted); font-style: italic; font-size: 12px;">No fabric details available</div>
+              </div>
             </div>
             <div class="detail-item">
               <label>PL Name</label>
@@ -996,6 +994,51 @@
             color: #1e293b;
             font-size: 13.5px;
             line-height: 1.4;
+          }
+
+          .fabric-badge-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 8px 12px;
+            display: grid;
+            grid-template-columns: 30px 1fr 1fr 1fr;
+            gap: 12px;
+            align-items: center;
+          }
+
+          .fabric-badge-opt {
+            background: var(--primary-color);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+          }
+
+          .fabric-info-col {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+          }
+
+          .fabric-info-label {
+            font-size: 9px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 700;
+          }
+
+          .fabric-info-val {
+            font-size: 12px;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
         </style>
 
@@ -1239,6 +1282,62 @@
         const pls = [...new Set(requestsRows.map(r => r.PL_Name || r.assignee).filter(Boolean))];
         const customers = [...new Set(requestsRows.map(r => r.Customer || r.customer).filter(Boolean))];
         const statuses = [...new Set(requestsRows.map(r => r.Status || r.status).filter(Boolean))];
+
+      function renderFabricDetails(row) {
+        const container = document.getElementById('sel-detail-fabric-container');
+        if (!container) return;
+        container.innerHTML = '';
+
+        const rawAddOns = row['Fabric Add Ons'] || row.Fabric_Add_Ons || '';
+        let fabricRows = [];
+
+        if (rawAddOns && String(rawAddOns).startsWith('[')) {
+          try {
+            fabricRows = JSON.parse(rawAddOns);
+          } catch (e) {
+            console.error("Fabric JSON parse error", e);
+          }
+        }
+
+        // Fallback or Single Legacy Item
+        if (fabricRows.length === 0) {
+          const mainFabric = row.Main_Fabric || row.mainFabric || row['Fabric Add Ons'] || '-';
+          if (mainFabric !== '-') {
+            fabricRows.push({
+              opt: 'A',
+              fabric: mainFabric,
+              header: row.Fabric_Header || row.fabricHeader || '-'
+            });
+          }
+        }
+
+        if (fabricRows.length === 0) {
+          container.innerHTML = '<div style="color: var(--text-muted); font-style: italic; font-size: 12px;">No fabric details available</div>';
+          return;
+        }
+
+        fabricRows.forEach((item, idx) => {
+          const opt = item.opt || String.fromCharCode(65 + idx);
+          const html = `
+            <div class="fabric-badge-item">
+              <div class="fabric-badge-opt">${opt}</div>
+              <div class="fabric-info-col">
+                <span class="fabric-info-label">Fabric</span>
+                <span class="fabric-info-val" title="${item.fabric || '-'}">${item.fabric || '-'}</span>
+              </div>
+              <div class="fabric-info-col">
+                <span class="fabric-info-label">Gms / Comp</span>
+                <span class="fabric-info-val">${item.gms || '-'}${item.composition ? ' / ' + item.composition : ''}</span>
+              </div>
+              <div class="fabric-info-col">
+                <span class="fabric-info-label">Header</span>
+                <span class="fabric-info-val" title="${item.header || '-'}">${item.header || '-'}</span>
+              </div>
+            </div>
+          `;
+          container.insertAdjacentHTML('beforeend', html);
+        });
+      }
 
         const fills = [
           { id: 'id-list-tp', vals: ids },
@@ -1570,9 +1669,10 @@
               document.getElementById('sel-detail-cust').textContent = rowData.Customer || rowData.customer || '-';
               document.getElementById('sel-detail-dept').textContent = rowData.Customer_Department || rowData.Cus_Dept || '-';
               document.getElementById('sel-detail-season').textContent = rowData.Season || rowData.TKL_Season || '-';
-              document.getElementById('sel-detail-fabric').textContent = rowData['Fabric Add Ons'] || rowData.Main_Fabric || '-';
-              // Field 'sel-detail-header' is now redundant if it was part of Fabric Add Ons, but we'll leave it as '-' or same as fabric
-              document.getElementById('sel-detail-header').textContent = '-'; 
+              
+              // Fabric Details Consolidation
+              renderFabricDetails(rowData);
+              
               document.getElementById('sel-detail-pl').textContent = rowData.PL_Name || rowData.assignee || '-';
               document.getElementById('sel-detail-status').textContent = rowData.status || rowData.Status || '-';
               document.getElementById('sel-detail-created').textContent = formatDateOnly(rowData.createdDate || rowData.Created);
@@ -1617,7 +1717,6 @@
                 { label: 'Customer Department', value: rowData.Customer_Department || rowData.Cus_Dept },
                 { label: 'Customer', value: rowData.Customer || rowData.customer },
                 { label: 'Season', value: rowData.Season || rowData.TKL_Season },
-                { label: 'Fabric Add Ons', value: rowData['Fabric Add Ons'] || rowData.Main_Fabric },
                 { label: 'PL Name', value: rowData.PL_Name || rowData.assignee },
                 { label: 'Status', value: rowData.Status || rowData.status },
                 { label: 'Created', value: formatDateOnly(rowData.Created || rowData.createdDate) },
@@ -1637,6 +1736,23 @@
               </div>
             `;
               }).join('');
+              
+              // Add Fabric Section at the bottom of standard details
+              detailsContent.insertAdjacentHTML('beforeend', `
+                <div style="margin-top: 16px; border-top: 1px dashed #e2e8f0; padding-top: 12px;">
+                  <strong style="display: block; color: var(--text-muted); font-size: 10px; text-transform: uppercase; margin-bottom: 8px;">Fabric Details</strong>
+                  <div id="modal-fabric-container"></div>
+                </div>
+              `);
+              
+              const originalContainer = document.getElementById('sel-detail-fabric-container');
+              const modalFabricContainer = document.getElementById('modal-fabric-container');
+              
+              // We reuse the logic by temporarily targeting the modal container
+              const oldContainerId = 'sel-detail-fabric-container';
+              modalFabricContainer.id = oldContainerId; 
+              renderFabricDetails(rowData);
+              modalFabricContainer.id = 'modal-fabric-container'; // Restore ID
 
               document.getElementById('details-modal').style.display = 'flex';
             }
