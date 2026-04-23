@@ -2342,59 +2342,43 @@
         detailsContent.appendChild(fabricTableDiv);
         renderFabricDetails(rowData, 'modal-fabric-container');
         
-        // 2. General Details
-        const DETAIL_FIELDS = [
-          "C_Number", "Customer_Ref", "Customer", "Cus_Dept", "Season",
-          "PL_Name", "Status", "Created", "Created By", "Folder_Path"
-        ];
-
+        // 2. Dynamic General Details based on all available keys
         const listContainer = document.createElement('div');
         listContainer.className = "form-list";
 
-        DETAIL_FIELDS.forEach(field => {
-          let val = rowData[field] || rowData[field.toLowerCase()] || rowData[field.replace(/_/g, ' ')] || "";
+        // Internal/Technical keys to exclude from display
+        const excludeKeys = ['_rowIndex', 'Fabric Add Ons', 'Fabric_Add_Ons', 'folderLink', 'avatar', 'statusClass', 'id', 'Style', 'Main_Fabric', 'Fabric_Header'];
+
+        Object.keys(rowData).forEach(key => {
+          if (excludeKeys.includes(key)) return;
+          
+          let val = rowData[key];
           
           // HIDE IF EMPTY
-          if (val === undefined || val === null || String(val).trim() === "" || String(val).trim() === "-") return;
+          if (val === undefined || val === null || String(val).trim() === "" || String(val).trim() === "-" || String(val).trim() === "N/A") return;
 
           const div = document.createElement('div');
           div.className = "detail-row";
 
-          let labelName = field === "C_Number" ? "C Number" : field.replace(/_/g, ' ');
-          if (field === "Customer_Ref") labelName = "Customer Reference";
-          if (field === "Cus_Dept") labelName = "Customer Type";
-          if (field === "Season") labelName = "TKL Season";
-          if (field === "PL_Name") labelName = "PL Name";
-          if (field === "Created") labelName = "Created Date";
-          if (field === "Folder_Path") labelName = "Folder Path";
-
+          // Beautify Header/Label
+          let labelName = key.replace(/_/g, ' ');
+          if (labelName.toLowerCase() === "c number") labelName = "C Number";
+          
           let displayVal = val;
-          if (field === "Status") {
+          if (key.toLowerCase().includes('status')) {
             displayVal = `<span class="badge" style="background-color: var(--status-progress-bg); color: var(--status-progress-text); padding: 2px 8px; border-radius: 12px; font-weight: 600; font-size: 11px;">${val}</span>`;
-          } else if ((field === "Created" || field.toLowerCase().includes('date')) && val !== "") {
+          } else if ((key.toLowerCase().includes('date') || key.toLowerCase() === 'created') && !isNaN(Date.parse(val)) && String(val).includes('/')) {
             displayVal = formatDateOnly(val);
-          } else if (field === "Folder_Path" && String(val).startsWith("http")) {
+          } else if (String(val).startsWith('http')) {
             displayVal = `<a href="${val}" target="_blank" style="color: #3b82f6; font-weight: 700; text-decoration: underline;">Open Folder</a>`;
           }
 
           div.innerHTML = `
-            <span class="detail-label">${labelName}</span>
+            <span class="detail-label" style="text-transform: capitalize;">${labelName}</span>
             <span class="detail-value">${displayVal}</span>
           `;
           listContainer.appendChild(div);
         });
-
-        // Add Remarks if present
-        const remVal = rowData.Remarks_Techpack || rowData.remarks || rowData.Remarks || "";
-        if (remVal && String(remVal).trim() !== "" && String(remVal).trim() !== "-") {
-          const div = document.createElement('div');
-          div.className = "detail-row";
-          div.innerHTML = `
-            <span class="detail-label">Remarks</span>
-            <span class="detail-value">${remVal}</span>
-          `;
-          listContainer.appendChild(div);
-        }
 
         detailsContent.appendChild(listContainer);
         document.getElementById('details-modal').style.display = 'flex';
