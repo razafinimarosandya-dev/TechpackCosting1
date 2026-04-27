@@ -1949,9 +1949,8 @@
             }
 
             actionButtons = `
-          <div style="display: flex; justify-content: center; align-items: center; gap: 8px;">
-            <button class="btn-outline details-btn" data-id="${safeId}" style="padding: 6px 10px; font-size: 12px;">Details</button>
-            <button class="btn-outline remarks-btn" data-id="${safeId}" style="padding: 6px 10px; font-size: 12px;">Remarks</button>
+          <div style="display: flex; justify-content: center; align-items: center;">
+            <button class="btn-outline details-btn" data-id="${safeId}" style="padding: 6px 16px; font-size: 12px; font-weight: 600;">Details</button>
           </div>
         `;
           }
@@ -2493,7 +2492,7 @@
         listContainer.className = "form-grid";
 
         // Internal/Technical keys to exclude from display loop
-        const excludeKeys = ['_rowIndex', 'Fabric Add Ons', 'Fabric_Add_Ons', 'folderLink', 'avatar', 'statusClass', 'id', 'Style', 'Main_Fabric', 'Fabric_Header', 'Folder_Path', 'Folder Path', 'PowerAppsId', 'PowerAppsId__'].map(k => k.toLowerCase().replace(/[\s_]/g, ''));
+        const excludeKeys = ['_rowIndex', 'Fabric Add Ons', 'Fabric_Add_Ons', 'folderLink', 'avatar', 'statusClass', 'id', 'Style', 'Main_Fabric', 'Fabric_Header', 'Folder_Path', 'Folder Path', 'PowerAppsId', 'PowerAppsId__', 'Techpack_Remarks', 'techpack_remarks'].map(k => k.toLowerCase().replace(/[\s_]/g, ''));
 
         Object.keys(rowData).forEach(key => {
           const normalizedKey = key.toLowerCase().replace(/[\s_]/g, '');
@@ -2524,6 +2523,19 @@
           `;
           listContainer.appendChild(card);
         });
+
+        // 2b. Add Techpack Remarks (Explicitly at the end of the grid)
+        const remarkVal = rowData.Techpack_Remarks || rowData.techpack_remarks || rowData['Remarks Techpack'] || '';
+        if (remarkVal && String(remarkVal).trim() !== "" && String(remarkVal).trim() !== "-") {
+          const card = document.createElement('div');
+          card.className = "detail-card";
+          card.style.borderLeft = "4px solid var(--primary-color)";
+          card.innerHTML = `
+            <span class="detail-label" style="color: var(--primary-color);">Techpack Remarks</span>
+            <div class="detail-value">${remarkVal}</div>
+          `;
+          listContainer.appendChild(card);
+        }
 
         // 3. Append Folder Path at the VERY END
         const folderKey = Object.keys(rowData).find(k => {
