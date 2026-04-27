@@ -2157,17 +2157,20 @@
             const result = await response.json();
             if (result.status === 'success' || result.success === true) {
               alert("Techpack submitted and notification emails sent!");
-            if (uploadRemarkInput) uploadRemarkInput.value = '';
-            uploadConfigSection.style.display = 'none';
-            if (activeRequestBanner) activeRequestBanner.style.display = 'none';
+              if (uploadRemarkInput) uploadRemarkInput.value = '';
+              uploadConfigSection.style.display = 'none';
+              if (activeRequestBanner) activeRequestBanner.style.display = 'none';
 
-            // Switch to Completed Tab
-            currentTab = 'Completed';
-            if (navCompleted && navUploads) {
-              navCompleted.classList.add('active');
-              navUploads.classList.remove('active');
+              // Switch to Completed Tab
+              currentTab = 'Completed';
+              if (navCompleted && navUploads) {
+                navCompleted.classList.add('active');
+                navUploads.classList.remove('active');
+              }
+              await loadTableData();
+            } else {
+              throw new Error(result.message || result.error || "Update failed");
             }
-            await loadTableData();
           } catch (error) {
             console.error("Submission error:", error);
             alert("Error: " + error.message);
