@@ -2484,7 +2484,15 @@
         listContainer.className = "form-grid";
 
         // Internal/Technical keys to exclude from display loop
-        const excludeKeys = ['_rowIndex', 'Fabric Add Ons', 'Fabric_Add_Ons', 'folderLink', 'avatar', 'statusClass', 'id', 'Style', 'Main_Fabric', 'Fabric_Header', 'Folder_Path', 'Folder Path', 'PowerAppsId', 'PowerAppsId__', 'Techpack_Remarks', 'techpack_remarks', 'attachments'].map(k => k.toLowerCase().replace(/[\s_]/g, ''));
+        const excludeKeys = [
+          '_rowIndex', 'Fabric Add Ons', 'Fabric_Add_Ons', 'folderLink', 'avatar', 
+          'statusClass', 'id', 'Style', 'Main_Fabric', 'Fabric_Header', 
+          'Folder_Path', 'Folder Path', 'PowerAppsId', 'PowerAppsId__', 
+          'Techpack_Remarks', 'techpack_remarks', 'attachments',
+          'Req Date', 'Req_Date', 'Acc Email', 'Acc_Email', 'PL Mail', 'PL_Mail',
+          'Meeting Time', 'Meeting_Time', 'Attendees', 'Meeting Attendees', 'Meeting_Attendees',
+          'Meeting Type', 'Meeting_Type', 'Meeting Notes', 'Meeting_Notes'
+        ].map(k => k.toLowerCase().replace(/[\s_]/g, ''));
 
         Object.keys(rowData).forEach(key => {
           const normalizedKey = key.toLowerCase().replace(/[\s_]/g, '');
