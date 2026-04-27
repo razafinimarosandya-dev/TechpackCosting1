@@ -1702,36 +1702,41 @@
         });
       }
 
-      // Helper to globally parse Dates for Calendar
+      // Helper to globally parse Dates for Calendar (Robust version)
       const globalParseSheetDate = (dateStr) => {
-        if (!dateStr || String(dateStr).trim() === '-' || String(dateStr).trim() === '') return null;
+        if (!dateStr) return null;
         if (dateStr instanceof Date) return dateStr;
-
         let s = String(dateStr).trim();
-        // Handle DD/MM/YYYY HH:MM:SS
-        let parts = s.split(' ');
-        let datePart = parts[0];
-        let timePart = parts[1] || '00:00:00';
+        if (s === '-' || s === '') return null;
 
-        if (datePart.includes('/')) {
-          let pts = datePart.split('/');
-          if (pts.length === 3) {
-            let d = parseInt(pts[0], 10);
-            let m = parseInt(pts[1], 10) - 1;
-            let y = pts[2].length === 2 ? 2000 + parseInt(pts[2], 10) : parseInt(pts[2], 10);
-
-            let t = timePart.split(':');
-            let h = parseInt(t[0] || 0, 10);
-            let min = parseInt(t[1] || 0, 10);
-            let sec = parseInt(t[2] || 0, 10);
-
-            let finalDate = new Date(y, m, d, h, min, sec);
-            if (!isNaN(finalDate)) return finalDate;
+        // 1. Try DD/MM/YYYY or DD/MM/YY (with potential time)
+        const ddmm = s.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})/);
+        if (ddmm) {
+          const d = parseInt(ddmm[1], 10);
+          const m = parseInt(ddmm[2], 10) - 1;
+          let y = parseInt(ddmm[3], 10);
+          if (y < 100) y += 2000;
+          
+          // Try to extract time if present (e.g. 27/04/2026 14:00:00)
+          const timeMatch = s.match(/(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?/);
+          if (timeMatch) {
+             const h = parseInt(timeMatch[1], 10);
+             const min = parseInt(timeMatch[2], 10);
+             const sec = parseInt(timeMatch[3] || 0, 10);
+             return new Date(y, m, d, h, min, sec);
           }
+          return new Date(y, m, d);
         }
 
-        let fallback = new Date(s);
-        return isNaN(fallback) ? null : fallback;
+        // 2. Fallback to native Date parser (handles ISO, standard JS formats)
+        const fallback = new Date(s);
+        return isNaN(fallback.getTime()) ? null : fallback;
+      };
+
+      const getSafeProp = (obj, search) => {
+        if (!obj) return null;
+        const k = Object.keys(obj).find(key => key.toLowerCase().replace(/[\s_]/g, '') === search.toLowerCase().replace(/[\s_]/g, ''));
+        return k ? obj[k] : null;
       };
 
       const formatDateOnly = (dateStr) => {
@@ -2352,14 +2357,14 @@
           let dateVal = '';
 
           if (st === 'AWAITING PATTERN') {
-            dateVal = row.PL_Uploaded_Date || row['PL_Uploaded_Date'] || '';
+            dateVal = getSafeProp(row, 'PL_Uploaded_Date') || getSafeProp(row, 'PL Uploaded Date') || '';
           } else if (st === 'AWAITING TECHPACK') {
-            dateVal = row.Costing_Expected_Date || row['Costing_Expected_Date'] || row.due || '';
+            dateVal = getSafeProp(row, 'Costing_Expected_Date') || getSafeProp(row, 'Costing Expected Date') || row.due || '';
           }
 
           if (dateVal) {
             const d = globalParseSheetDate(dateVal);
-            if (d && !isNaN(d)) {
+            if (d && !isNaN(d.getTime())) {
               if (d.getFullYear() === year && d.getMonth() === month) {
                 let day = d.getDate();
                 dayCounts[day] = (dayCounts[day] || 0) + 1;
