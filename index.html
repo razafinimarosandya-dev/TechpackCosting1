@@ -2137,12 +2137,11 @@
 
           const payload = {
             action: 'update',
+            requestId: currentId,
             rowIndex: rowData._rowIndex,
-            updates: {
-              'Status': 'Awaiting Pattern',
-              'PL_Uploaded_Date': timestamp,
-              'Techpack_Remarks': finalRemarks
-            },
+            'Status': 'Awaiting Pattern',
+            'PL_Uploaded_Date': timestamp,
+            'Techpack_Remarks': finalRemarks,
             emailParams: {
               to: recipients || "YTeeluck@tropicknits.com",
               subject: `Update Request: ${currentId}`,
@@ -2156,9 +2155,8 @@
               body: JSON.stringify(payload)
             });
             const result = await response.json();
-            if (result.status !== 'success') throw new Error(result.message || "Update failed");
-
-            alert("Techpack submitted and notification emails sent!");
+            if (result.status === 'success' || result.success === true) {
+              alert("Techpack submitted and notification emails sent!");
             if (uploadRemarkInput) uploadRemarkInput.value = '';
             uploadConfigSection.style.display = 'none';
             if (activeRequestBanner) activeRequestBanner.style.display = 'none';
@@ -2204,19 +2202,19 @@
               method: 'POST',
               body: JSON.stringify({
                 action: 'update',
-                rowIndex: row ? row._rowIndex : null,
                 requestId: id,
-                updates: {
-                  'Techpack_Remarks': remarksVal
-                }
+                rowIndex: row ? row._rowIndex : null,
+                'Techpack_Remarks': remarksVal
               })
             });
             const result = await response.json();
-            if (result.status !== 'success') throw new Error(result.message || "Failed to update remark");
-
-            await loadTableData();
-            alert('Remark saved successfully.');
-            remarksModal.style.display = 'none';
+            if (result.status === 'success' || result.success === true) {
+              await loadTableData();
+              alert('Remark saved successfully.');
+              remarksModal.style.display = 'none';
+            } else {
+              throw new Error(result.message || result.error || "Failed to update remark");
+            }
           } catch (error) {
             console.error("Save remark error:", error);
             alert("Error saving remark: " + error.message);
@@ -2478,21 +2476,12 @@
       function openDetailsInternal(rowData) {
         if (!rowData) return;
         const detailsContent = document.getElementById('details-content');
-        detailsContent.innerHTML = "";
-
-        // 1. Fabric Details at the top
-        const fabricTableDiv = document.createElement('div');
-        fabricTableDiv.id = "modal-fabric-container";
-        fabricTableDiv.style.marginBottom = "24px";
-        detailsContent.appendChild(fabricTableDiv);
-        renderFabricDetails(rowData, 'modal-fabric-container');
-
-        // 2. Dynamic General Details based on all available keys
+        // 1. Dynamic General Details based on all available keys
         const listContainer = document.createElement('div');
         listContainer.className = "form-grid";
 
         // Internal/Technical keys to exclude from display loop
-        const excludeKeys = ['_rowIndex', 'Fabric Add Ons', 'Fabric_Add_Ons', 'folderLink', 'avatar', 'statusClass', 'id', 'Style', 'Main_Fabric', 'Fabric_Header', 'Folder_Path', 'Folder Path', 'PowerAppsId', 'PowerAppsId__', 'Techpack_Remarks', 'techpack_remarks'].map(k => k.toLowerCase().replace(/[\s_]/g, ''));
+        const excludeKeys = ['_rowIndex', 'Fabric Add Ons', 'Fabric_Add_Ons', 'folderLink', 'avatar', 'statusClass', 'id', 'Style', 'Main_Fabric', 'Fabric_Header', 'Folder_Path', 'Folder Path', 'PowerAppsId', 'PowerAppsId__', 'Techpack_Remarks', 'techpack_remarks', 'attachments'].map(k => k.toLowerCase().replace(/[\s_]/g, ''));
 
         Object.keys(rowData).forEach(key => {
           const normalizedKey = key.toLowerCase().replace(/[\s_]/g, '');
@@ -2524,7 +2513,7 @@
           listContainer.appendChild(card);
         });
 
-        // 2b. Add Techpack Remarks (Explicitly at the end of the grid)
+        // 1b. Add Techpack Remarks (Explicitly at the end of the grid)
         const remarkVal = rowData.Techpack_Remarks || rowData.techpack_remarks || rowData['Remarks Techpack'] || '';
         if (remarkVal && String(remarkVal).trim() !== "" && String(remarkVal).trim() !== "-") {
           const card = document.createElement('div');
@@ -2537,32 +2526,17 @@
           listContainer.appendChild(card);
         }
 
-        // 3. Append Folder Path at the VERY END
-        const folderKey = Object.keys(rowData).find(k => {
-          const nk = k.toLowerCase().replace(/[\s_]/g, '');
-          return nk === 'folderpath' || nk === 'attachmenturl' || nk === 'folderlink';
-        });
-
-        if (folderKey && rowData[folderKey]) {
-          const folderVal = rowData[folderKey];
-          if (folderVal && String(folderVal).trim() !== "" && String(folderVal).trim() !== "-") {
-            const card = document.createElement('div');
-            card.className = "detail-card";
-            card.style.gridColumn = "1 / -1";
-            card.style.marginTop = "12px";
-            let displayVal = folderVal;
-            if (String(folderVal).startsWith('http')) {
-              displayVal = `<a href="${folderVal}" target="_blank" style="color: #3b82f6; font-weight: 700; text-decoration: none;">Open Folder</a>`;
-            }
-            card.innerHTML = `
-              <span class="detail-label">Folder Path</span>
-              <div class="detail-value">${displayVal}</div>
-            `;
-            listContainer.appendChild(card);
-          }
-        }
-
         detailsContent.appendChild(listContainer);
+
+        // 2. Fabric Details at the bottom
+        const fabricTableDiv = document.createElement('div');
+        fabricTableDiv.id = "modal-fabric-container";
+        fabricTableDiv.style.marginTop = "24px";
+        fabricTableDiv.style.borderTop = "2px solid #e2e8f0";
+        fabricTableDiv.style.paddingTop = "16px";
+        detailsContent.appendChild(fabricTableDiv);
+        renderFabricDetails(rowData, 'modal-fabric-container');
+
         document.getElementById('details-modal').style.display = 'flex';
       }
 
