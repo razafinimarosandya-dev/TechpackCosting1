@@ -2349,19 +2349,20 @@
         let dayCounts = {};
         requestsRows.forEach(row => {
           const st = String(row.status || row.Status || '').toUpperCase().trim();
+          let dateVal = '';
 
-          // Debug status
           if (st === 'AWAITING PATTERN') {
-            const dateVal = row.PL_Uploaded_Date || row['PL_Uploaded_Date'] || '';
-            const d = globalParseSheetDate(dateVal);
+            dateVal = row.PL_Uploaded_Date || row['PL_Uploaded_Date'] || '';
+          } else if (st === 'AWAITING TECHPACK') {
+            dateVal = row.Costing_Expected_Date || row['Costing_Expected_Date'] || row.due || '';
+          }
 
+          if (dateVal) {
+            const d = globalParseSheetDate(dateVal);
             if (d && !isNaN(d)) {
-              console.log(`[Calendar] Match found! ID: ${row.id || row.C_Number}, Date: ${dateVal}, Parsed: ${d.toDateString()}`);
               if (d.getFullYear() === year && d.getMonth() === month) {
                 let day = d.getDate();
                 dayCounts[day] = (dayCounts[day] || 0) + 1;
-              } else {
-                console.warn(`[Calendar] Date is in different month/year: ${d.getFullYear()}/${d.getMonth() + 1}`);
               }
             } else if (dateVal && dateVal !== '-' && dateVal !== '') {
               console.error(`[Calendar] Failed to parse date: "${dateVal}" for ID: ${row.id || row.C_Number}`);
@@ -2418,8 +2419,15 @@
             countBadge.addEventListener('click', () => {
               const dailyReqs = requestsRows.filter(r => {
                 const st = String(r.status || r.Status || '').toUpperCase().trim();
-                if (st !== 'AWAITING PATTERN') return false;
-                const rd = globalParseSheetDate(r.PL_Uploaded_Date);
+                let dateVal = '';
+                if (st === 'AWAITING PATTERN') {
+                  dateVal = r.PL_Uploaded_Date || r['PL_Uploaded_Date'] || '';
+                } else if (st === 'AWAITING TECHPACK') {
+                  dateVal = r.Costing_Expected_Date || r['Costing_Expected_Date'] || r.due || '';
+                }
+                
+                if (!dateVal) return false;
+                const rd = globalParseSheetDate(dateVal);
                 return rd && !isNaN(rd) && rd.getFullYear() === year && rd.getMonth() === month && rd.getDate() === i;
               });
 
