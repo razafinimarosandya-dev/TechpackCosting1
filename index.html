@@ -1407,7 +1407,7 @@
   <div class="modal-backdrop" id="details-modal">
     <div class="modal-window">
       <div class="modal-header">
-        <h2>Details</h2>
+        <h2>Request Details</h2>
         <button class="close-btn" id="close-details-btn">&times;</button>
       </div>
       <div class="modal-body">
@@ -2572,23 +2572,16 @@
         // 3. Folder Path at the very bottom
         const folderVal = getSafeProp(rowData, 'Folder Path') || getSafeProp(rowData, 'Folder_Path') || rowData.folderLink || '';
         if (folderVal && String(folderVal).startsWith('http')) {
-          const folderDiv = document.createElement('div');
-          folderDiv.style.marginTop = "16px";
-          folderDiv.style.padding = "12px 16px";
-          folderDiv.style.backgroundColor = "#f8fafc";
-          folderDiv.style.borderRadius = "8px";
-          folderDiv.style.display = "flex";
-          folderDiv.style.justifyContent = "space-between";
-          folderDiv.style.alignItems = "center";
-          folderDiv.style.border = "1px solid #e2e8f0";
-          folderDiv.innerHTML = `
-            <span style="font-size: 13px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.025em;">Technical Folder</span>
-            <a href="${folderVal}" target="_blank" style="background-color: var(--primary-color); color: white; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: opacity 0.2s;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-              Open Folder
-            </a>
+          const folderCard = document.createElement('div');
+          folderCard.className = "detail-card";
+          folderCard.style.marginTop = "16px";
+          folderCard.innerHTML = `
+            <span class="detail-label">Folder Path</span>
+            <div class="detail-value">
+              <a href="${folderVal}" target="_blank" style="color: var(--primary-color); font-weight: 700; text-decoration: underline;">Open Folder</a>
+            </div>
           `;
-          detailsContent.appendChild(folderDiv);
+          detailsContent.appendChild(folderCard);
         }
 
         document.getElementById('details-modal').style.display = 'flex';
