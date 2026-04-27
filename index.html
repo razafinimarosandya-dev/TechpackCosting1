@@ -2363,7 +2363,7 @@
               } else {
                 console.warn(`[Calendar] Date is in different month/year: ${d.getFullYear()}/${d.getMonth() + 1}`);
               }
-            } else {
+            } else if (dateVal && dateVal !== '-' && dateVal !== '') {
               console.error(`[Calendar] Failed to parse date: "${dateVal}" for ID: ${row.id || row.C_Number}`);
             }
           }
