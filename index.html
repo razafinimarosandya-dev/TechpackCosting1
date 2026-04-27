@@ -2502,53 +2502,60 @@
           '_rowIndex', 'Fabric Add Ons', 'Fabric_Add_Ons', 'folderLink', 'avatar', 
           'statusClass', 'id', 'Style', 'Main_Fabric', 'Fabric_Header', 
           'Folder_Path', 'Folder Path', 'PowerAppsId', 'PowerAppsId__', 
-          'Techpack_Remarks', 'techpack_remarks', 'attachments',
-          'Req Date', 'Req_Date', 'Acc Email', 'Acc_Email', 'PL Mail', 'PL_Mail',
+          'attachments', 'Req Date', 'Req_Date', 'Acc Email', 'Acc_Email', 'PL Mail', 'PL_Mail',
           'Meeting Time', 'Meeting_Time', 'Attendees', 'Meeting Attendees', 'Meeting_Attendees',
-          'Meeting Type', 'Meeting_Type', 'Meeting Notes', 'Meeting_Notes'
+          'Meeting Type', 'Meeting_Type', 'Meeting Notes', 'Meeting_Notes',
+          'Meeting Date', 'Meeting_Date', 'Req_Remarks', 'Req Remarks', 'Techpack_Remarks', 'techpack_remarks'
         ].map(k => k.toLowerCase().replace(/[\s_]/g, ''));
 
-        Object.keys(rowData).forEach(key => {
-          const normalizedKey = key.toLowerCase().replace(/[\s_]/g, '');
-          if (excludeKeys.includes(normalizedKey)) return;
-
-          let val = rowData[key];
-          if (val === undefined || val === null || String(val).trim() === "" || String(val).trim() === "-" || String(val).trim() === "N/A") return;
-
+        const createCard = (label, value, isPrimary = false) => {
+          if (!value || String(value).trim() === "" || String(value).trim() === "-" || String(value).trim() === "N/A") return null;
           const card = document.createElement('div');
           card.className = "detail-card";
-
-          let labelName = key.replace(/_/g, ' ');
-          if (labelName.toLowerCase() === "c number") labelName = "C Number";
-
-          let displayVal = val;
-          if (key.toLowerCase().includes('status')) {
-            const statusClass = String(val).toLowerCase().replace(/\s+/g, '-');
-            displayVal = `<span class="status-pill ${statusClass}">${val}</span>`;
-          } else if (key.toLowerCase().includes('date') || key.toLowerCase() === 'created') {
-            displayVal = formatDateOnly(val);
-          } else if (String(val).startsWith('http')) {
-            displayVal = `<a href="${val}" target="_blank" style="color: #3b82f6; font-weight: 700; text-decoration: none;">Open Folder</a>`;
+          if (isPrimary) card.style.borderLeft = "4px solid var(--primary-color)";
+          
+          let displayVal = value;
+          if (label.toLowerCase().includes('status')) {
+            const statusClass = String(value).toLowerCase().replace(/\s+/g, '-');
+            displayVal = `<span class="status-pill ${statusClass}">${value}</span>`;
+          } else if (label.toLowerCase().includes('date') || label.toLowerCase() === 'created') {
+            displayVal = formatDateOnly(value);
+          } else if (String(value).startsWith('http')) {
+            displayVal = `<a href="${value}" target="_blank" style="color: #3b82f6; font-weight: 700; text-decoration: none;">Open Folder</a>`;
           }
 
           card.innerHTML = `
-            <span class="detail-label">${labelName}</span>
+            <span class="detail-label" ${isPrimary ? 'style="color: var(--primary-color);"' : ''}>${label}</span>
             <div class="detail-value">${displayVal}</div>
           `;
-          listContainer.appendChild(card);
+          return card;
+        };
+
+        // Main Loop
+        Object.keys(rowData).forEach(key => {
+          const normalizedKey = key.toLowerCase().replace(/[\s_]/g, '');
+          if (excludeKeys.includes(normalizedKey)) return;
+          const card = createCard(key.replace(/_/g, ' '), rowData[key]);
+          if (card) listContainer.appendChild(card);
         });
 
-        // 1b. Add Techpack Remarks (Explicitly at the end of the grid)
-        const remarkVal = rowData.Techpack_Remarks || rowData.techpack_remarks || rowData['Remarks Techpack'] || '';
-        if (remarkVal && String(remarkVal).trim() !== "" && String(remarkVal).trim() !== "-") {
-          const card = document.createElement('div');
-          card.className = "detail-card";
-          card.style.borderLeft = "4px solid var(--primary-color)";
-          card.innerHTML = `
-            <span class="detail-label" style="color: var(--primary-color);">Techpack Remarks</span>
-            <div class="detail-value">${remarkVal}</div>
-          `;
-          listContainer.appendChild(card);
+        // Specific Ordering at the end: Meeting Date -> Req Remarks -> Techpack Remarks
+        const mDate = getSafeProp(rowData, 'Meeting Date') || getSafeProp(rowData, 'Meeting_Date');
+        if (mDate) {
+          const card = createCard('Meeting Date', mDate);
+          if (card) listContainer.appendChild(card);
+        }
+
+        const rRem = getSafeProp(rowData, 'Req_Remarks') || getSafeProp(rowData, 'Req Remarks') || rowData.remarks || rowData.Remarks;
+        if (rRem) {
+          const card = createCard('Req Remarks', rRem);
+          if (card) listContainer.appendChild(card);
+        }
+
+        const tpRem = getSafeProp(rowData, 'Techpack_Remarks') || getSafeProp(rowData, 'techpack_remarks') || rowData['Remarks Techpack'];
+        if (tpRem) {
+          const card = createCard('Techpack Remarks', tpRem, true);
+          if (card) listContainer.appendChild(card);
         }
 
         detailsContent.appendChild(listContainer);
@@ -2561,6 +2568,28 @@
         fabricTableDiv.style.paddingTop = "16px";
         detailsContent.appendChild(fabricTableDiv);
         renderFabricDetails(rowData, 'modal-fabric-container');
+
+        // 3. Folder Path at the very bottom
+        const folderVal = getSafeProp(rowData, 'Folder Path') || getSafeProp(rowData, 'Folder_Path') || rowData.folderLink || '';
+        if (folderVal && String(folderVal).startsWith('http')) {
+          const folderDiv = document.createElement('div');
+          folderDiv.style.marginTop = "16px";
+          folderDiv.style.padding = "12px 16px";
+          folderDiv.style.backgroundColor = "#f8fafc";
+          folderDiv.style.borderRadius = "8px";
+          folderDiv.style.display = "flex";
+          folderDiv.style.justifyContent = "space-between";
+          folderDiv.style.alignItems = "center";
+          folderDiv.style.border = "1px solid #e2e8f0";
+          folderDiv.innerHTML = `
+            <span style="font-size: 13px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.025em;">Technical Folder</span>
+            <a href="${folderVal}" target="_blank" style="background-color: var(--primary-color); color: white; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: opacity 0.2s;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+              Open Folder
+            </a>
+          `;
+          detailsContent.appendChild(folderDiv);
+        }
 
         document.getElementById('details-modal').style.display = 'flex';
       }
