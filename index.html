@@ -966,7 +966,7 @@
               <div class="detail-value" id="sel-detail-dept">-</div>
             </div>
             <div class="detail-card">
-              <span class="detail-label">Season</span>
+              <span class="detail-label">TKL Season</span>
               <div class="detail-value" id="sel-detail-season">-</div>
             </div>
             <div class="detail-card">
@@ -2042,7 +2042,7 @@
             const id = e.currentTarget.getAttribute('data-id');
             const row = requestsRows.find(r => (r.C_Number || r.id) === id);
             document.getElementById('remarks-req-id').textContent = id;
-            document.getElementById('remarks-input').value = row ? (row['Remarks Techpack'] || row.remarks_techpack || row.remarks || '') : '';
+            document.getElementById('remarks-input').value = row ? (row.Techpack_Remarks || row.techpack_remarks || row['Remarks Techpack'] || row.remarks || '') : '';
             document.getElementById('remarks-modal').style.display = 'flex';
           });
         });
@@ -2142,7 +2142,7 @@
             updates: {
               'Status': 'Awaiting Pattern',
               'PL_Uploaded_Date': timestamp,
-              'Remarks Techpack': finalRemarks
+              'Techpack_Remarks': finalRemarks
             },
             emailParams: {
               to: recipients || "YTeeluck@tropicknits.com",
@@ -2208,7 +2208,7 @@
                 rowIndex: row ? row._rowIndex : null,
                 requestId: id,
                 updates: {
-                  'Remarks Techpack': remarksVal
+                  'Techpack_Remarks': remarksVal
                 }
               })
             });
@@ -2526,13 +2526,18 @@
         });
 
         // 3. Append Folder Path at the VERY END
-        const folderKey = Object.keys(rowData).find(k => k === 'Folder_Path' || k === 'Folder Path');
+        const folderKey = Object.keys(rowData).find(k => {
+          const nk = k.toLowerCase().replace(/[\s_]/g, '');
+          return nk === 'folderpath' || nk === 'attachmenturl' || nk === 'folderlink';
+        });
+
         if (folderKey && rowData[folderKey]) {
           const folderVal = rowData[folderKey];
           if (folderVal && String(folderVal).trim() !== "" && String(folderVal).trim() !== "-") {
             const card = document.createElement('div');
             card.className = "detail-card";
             card.style.gridColumn = "1 / -1";
+            card.style.marginTop = "12px";
             let displayVal = folderVal;
             if (String(folderVal).startsWith('http')) {
               displayVal = `<a href="${folderVal}" target="_blank" style="color: #3b82f6; font-weight: 700; text-decoration: none;">Open Folder</a>`;
