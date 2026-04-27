@@ -2492,6 +2492,7 @@
       function openDetailsInternal(rowData) {
         if (!rowData) return;
         const detailsContent = document.getElementById('details-content');
+        if (detailsContent) detailsContent.innerHTML = '';
         // 1. Dynamic General Details based on all available keys
         const listContainer = document.createElement('div');
         listContainer.className = "form-grid";
